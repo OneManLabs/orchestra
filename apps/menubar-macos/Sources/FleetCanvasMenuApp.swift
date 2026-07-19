@@ -30,6 +30,10 @@ final class FleetCanvasMenuApp: NSObject, NSApplicationDelegate {
         .appendingPathComponent("Fleet Canvas", isDirectory: true)
         .appendingPathComponent("desktop-connection.json", isDirectory: false)
 
+    private lazy var menuAnchorFileURL = connectionFileURL
+        .deletingLastPathComponent()
+        .appendingPathComponent("native-menu-anchor.json", isDirectory: false)
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 
@@ -74,7 +78,7 @@ final class FleetCanvasMenuApp: NSObject, NSApplicationDelegate {
     @objc
     private func statusItemClicked(_ sender: NSStatusBarButton) {
         guard let event = NSApp.currentEvent else {
-            toggleFleetMenuBar()
+            toggleFleetMenuBar(anchor: sender.window?.convertToScreen(sender.bounds))
             return
         }
 
@@ -85,7 +89,7 @@ final class FleetCanvasMenuApp: NSObject, NSApplicationDelegate {
                 in: sender
             )
         } else {
-            toggleFleetMenuBar()
+            toggleFleetMenuBar(anchor: sender.window?.convertToScreen(sender.bounds))
         }
     }
 
@@ -125,7 +129,16 @@ final class FleetCanvasMenuApp: NSObject, NSApplicationDelegate {
         return menu
     }
 
-    private func toggleFleetMenuBar() {
+    private func toggleFleetMenuBar(anchor: NSRect?) {
+        if let anchor {
+            let payload: [String: Double] = [
+                "x": anchor.origin.x,
+                "width": anchor.width
+            ]
+            if let data = try? JSONSerialization.data(withJSONObject: payload) {
+                try? data.write(to: menuAnchorFileURL, options: .atomic)
+            }
+        }
         if let running = NSRunningApplication.runningApplications(
             withBundleIdentifier: "com.fleetcanvas.desktop"
         ).first,

@@ -107,6 +107,7 @@ const MAX_CLIPBOARD_TEXT = 1_048_576;
 const CODEX_MICRO_DIAL_BATCH_MS = 16;
 const desktopPreferencesPath = () => join(app.getPath('userData'), 'desktop-preferences.json');
 const desktopConnectionPath = () => join(app.getPath('userData'), 'desktop-connection.json');
+const nativeMenuAnchorPath = () => join(app.getPath('userData'), 'native-menu-anchor.json');
 
 type QuietMode = 'normal' | 'quiet';
 
@@ -1068,11 +1069,21 @@ function handleMenuBarToggleRequest(): void {
   }
   pendingMenuBarToggle = false;
   if (menuBarWindow.isVisible()) menuBarWindow.hide();
-  // Requests from the native AppKit status item do not have Electron tray
-  // bounds. On affected macOS/Electron combinations getBounds() remains at
-  // the bottom-left startup sentinel, so waiting for it adds a two-second
-  // delay on every click. Use the deterministic top-right anchor immediately.
-  else showMenuBarWindow(resolvedMenuBarAnchor());
+  else void showMenuBarAtNativeAnchor();
+}
+
+async function showMenuBarAtNativeAnchor(): Promise<void> {
+  let anchor = resolvedMenuBarAnchor();
+  try {
+    const value = JSON.parse(await readFile(nativeMenuAnchorPath(), 'utf8')) as { x?: unknown; width?: unknown };
+    if (typeof value.x === 'number' && Number.isFinite(value.x)
+      && typeof value.width === 'number' && Number.isFinite(value.width) && value.width > 0 && value.width < 200) {
+      const display = screen.getDisplayNearestPoint({ x: Math.round(value.x + value.width / 2), y: screen.getPrimaryDisplay().bounds.y });
+      const candidate = { x: value.x, y: display.bounds.y + 2, width: value.width, height: 22 };
+      if (isUsableMenuBarAnchor(candidate, display.bounds)) anchor = candidate;
+    }
+  } catch { /* fall back to the deterministic top-right anchor */ }
+  showMenuBarWindow(anchor);
 }
 
 function trayContextMenu(): Menu {
