@@ -18,7 +18,7 @@ describe('FleetStore', () => {
       id: 'system-message',
       at: new Date().toISOString(),
       role: 'user',
-      text: 'status of @nas',
+      text: 'status of @demo-storage',
       mentions: [],
       references: [],
     });
@@ -31,7 +31,7 @@ describe('FleetStore', () => {
 
     const reopened = await FleetStore.open({ filePath });
     expect(reopened.state.settings.fleetName).toBe('Test fleet');
-    expect(reopened.state.systemConversation.messages.at(-1)?.text).toBe('status of @nas');
+    expect(reopened.state.systemConversation.messages.at(-1)?.text).toBe('status of @demo-storage');
     await reopened.close();
   });
 

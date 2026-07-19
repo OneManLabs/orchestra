@@ -2,7 +2,7 @@
 
 Use this path when you have SSH access to a Synology account but cannot or do
 not want to install a root-owned DSM package, `systemd` unit, or `sudo` service.
-The Agent makes an outbound connection to Fleet Core, so no inbound NAS port is
+The Agent makes an outbound connection to Orchestra Core, so no inbound NAS port is
 opened.
 
 This is a user-mode service helper, not a native DSM package. The boot-stack
@@ -43,7 +43,7 @@ minimal PATH used by DSM Task Scheduler.
 
 ## Enroll
 
-In Fleet Canvas, issue a one-use enrollment token for the NAS with the `storage`
+In Orchestra, issue a one-use enrollment token for the NAS with the `storage`
 role. Place it in an owner-only file without putting it in shell history:
 
 ```sh
@@ -104,7 +104,7 @@ Agent, stops the Agent if the tunnel fails, then repairs the tunnel and Agent in
 dependency order.
 
 Create a dedicated key with no passphrase for unattended boot, restrict that
-key on the relay to port forwarding and the exact Fleet Core destination, and
+key on the relay to port forwarding and the exact Orchestra Core destination, and
 pin the relay host key. Never reuse a personal login key. Configure the stack:
 
 ```sh
@@ -143,7 +143,7 @@ files under that directory; no key or configuration content is printed by
 The relay's `authorized_keys` entry should independently constrain what the NAS
 key can do. For OpenSSH, use source restrictions where practical together with
 `restrict,port-forwarding,permitopen="100.64.0.10:4780"` and a harmless forced
-command. The client-side restrictions in Fleet Canvas complement, but do not
+command. The client-side restrictions in Orchestra complement, but do not
 replace, that server-side boundary.
 
 ## Start after reboot (required)
@@ -160,7 +160,7 @@ User-defined script**:
    ```
 
 4. Save the task and use **Run** once to verify it; then confirm `status` and the
-   device's online state in Fleet Canvas.
+   device's online state in Orchestra.
 
 The absolute helper path is important because DSM scheduled tasks can have a
 minimal PATH and an unexpected HOME.
@@ -179,7 +179,7 @@ Agent helper first stops the boot supervisor and its managed tunnel:
 ```
 
 Use `--purge` to remove them as well, then revoke/decommission the device in
-Fleet Core. In either case, manually remove the DSM Task Scheduler boot task:
+Orchestra Core. In either case, manually remove the DSM Task Scheduler boot task:
 
 ```sh
 "$HOME/.fleet-canvas-agent/bin/fleet-agent-user" uninstall --purge

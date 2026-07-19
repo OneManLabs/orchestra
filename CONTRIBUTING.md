@@ -1,6 +1,6 @@
-# Contributing to Fleet Canvas
+# Contributing to Orchestra
 
-Thank you for your interest in Fleet Canvas. Bug reports, feature proposals, documentation improvements, and code contributions are welcome.
+Thank you for your interest in Orchestra. Bug reports, feature proposals, documentation improvements, and code contributions are welcome.
 
 Before investing substantial effort in a change, open an issue to discuss it with the maintainers. Do not include credentials, private fleet information, security-sensitive logs, or third-party material you do not have permission to contribute.
 
@@ -10,7 +10,7 @@ By submitting a pull request, you represent that you have the right to submit th
 
 One Man Labs may require a separate contributor license agreement before accepting a code contribution. This preserves the project's ability to offer both noncommercial and commercial licenses. A pull request is not accepted until any requested contributor agreement has been completed.
 
-Contributions incorporated into Fleet Canvas will be made available under the repository's public noncommercial license and may also be offered by One Man Labs under separate terms.
+Contributions incorporated into Orchestra will be made available under the repository's public noncommercial license and may also be offered by One Man Labs under separate terms.
 
 ## Pull requests
 

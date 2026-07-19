@@ -70,7 +70,7 @@ export function codexClientIdentity(): Promise<CodexClientIdentity> {
     const deviceName = window.fleetDesktop
       ? await window.fleetDesktop.clientDeviceName()
       : `${navigator.platform || 'Browser'} web app`;
-    const name = storage?.getItem('fleet.participantName')?.trim() || 'Nick';
+    const name = storage?.getItem('fleet.participantName')?.trim() || 'Operator';
     return { clientId, name, deviceName };
   })();
   return identityPromise;

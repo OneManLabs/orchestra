@@ -47,7 +47,7 @@ export class SleepInhibitor {
 
 export function inhibitorInvocation(): { command: string; args: string[] } | undefined {
   if (process.platform === 'darwin') return { command: '/usr/bin/caffeinate', args: ['-dimsu'] };
-  if (process.platform === 'linux') return { command: 'systemd-inhibit', args: ['--what=sleep', '--mode=block', '--why=Fleet Canvas job running', 'sleep', 'infinity'] };
+  if (process.platform === 'linux') return { command: 'systemd-inhibit', args: ['--what=sleep', '--mode=block', '--why=Orchestra job running', 'sleep', 'infinity'] };
   if (process.platform === 'win32') {
     const script = '$sig="[DllImport(\"kernel32.dll\")] public static extern uint SetThreadExecutionState(uint f);"; Add-Type -MemberDefinition $sig -Name Native -Namespace Fleet; [Fleet.Native]::SetThreadExecutionState(0x80000003) | Out-Null; while ($true) { Start-Sleep -Seconds 30 }';
     return { command: 'powershell.exe', args: ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', script] };

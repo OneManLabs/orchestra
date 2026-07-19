@@ -106,4 +106,4 @@ if (options.transport === 'stdio') {
 function isLoopback(host: string): boolean { return host === '127.0.0.1' || host === 'localhost' || host === '::1'; }
 function bearer(value: string | undefined): string { return value?.startsWith('Bearer ') ? value.slice(7) : ''; }
 function safeEqual(left: string, right: string): boolean { const a = Buffer.from(left), b = Buffer.from(right); return a.length === b.length && timingSafeEqual(a, b); }
-function validateCoreUrl(value: string): void { const url = new URL(value); if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error('Fleet Core URL must be an HTTP(S) URL without embedded credentials.'); }
+function validateCoreUrl(value: string): void { const url = new URL(value); if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error('Orchestra Core URL must be an HTTP(S) URL without embedded credentials.'); }

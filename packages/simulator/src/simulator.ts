@@ -94,7 +94,7 @@ class VirtualDevice {
       role: this.role,
       platform: this.role === 'gpu' ? 'win32' : 'linux',
       arch: this.role === 'gateway' ? 'arm64' : 'x64',
-      osName: 'Fleet Simulator',
+      osName: 'Orchestra Simulator',
       osVersion: '2.0',
       agentVersion: '2.0.0-simulator',
       protocolVersion: 2,

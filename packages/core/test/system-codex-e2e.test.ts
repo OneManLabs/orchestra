@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { startFleetAgent, type FleetAgent } from '../../agent/src/index.js';
 import { startFleetCore, type FleetCore } from '../src/server.js';
 
-describe('Fleet System Codex conversation', () => {
+describe('Orchestra System Codex conversation', () => {
   const cores: FleetCore[] = [];
   const agents: FleetAgent[] = [];
   const directories: string[] = [];
@@ -76,7 +76,7 @@ describe('Fleet System Codex conversation', () => {
     const first = await core.app.inject({
       method: 'POST',
       url: '/api/system/messages',
-      payload: { text: 'check gpu temps on @core-device', client: { clientId: 'mbp', name: 'Nick', deviceName: 'MacBook Pro' } },
+      payload: { text: 'check gpu temps on @core-device', client: { clientId: 'demo-desktop', name: 'Demo Operator', deviceName: 'Demo Desktop' } },
     });
     expect(first.statusCode, JSON.stringify(first.json())).toBe(201);
     await waitUntil(() => core.store.state.systemConversation.messages.at(-1)?.text === 'GPU temperature: 67°C.');
@@ -88,7 +88,7 @@ describe('Fleet System Codex conversation', () => {
       permissionMode: 'read-only',
     });
     expect(systemSession?.developerInstructions).toContain('natural follow-ups');
-    expect(systemSession?.developerInstructions).toContain('operator-facing surface is Fleet Canvas');
+    expect(systemSession?.developerInstructions).toContain('operator-facing surface is Orchestra Canvas');
     expect(systemSession?.developerInstructions).toContain('Website/View Site control');
     expect(core.store.state.systemConversation).toMatchObject({
       codexSessionId: systemSession?.id,
@@ -100,7 +100,7 @@ describe('Fleet System Codex conversation', () => {
     const second = await core.app.inject({
       method: 'POST',
       url: '/api/system/messages',
-      payload: { text: 'no, only the gpu temperature', client: { clientId: 'mbp', name: 'Nick', deviceName: 'MacBook Pro' } },
+      payload: { text: 'no, only the gpu temperature', client: { clientId: 'demo-desktop', name: 'Demo Operator', deviceName: 'Demo Desktop' } },
     });
     expect(second.statusCode, JSON.stringify(second.json())).toBe(201);
     await waitUntil(() => core.store.state.systemConversation.messages.at(-1)?.text === 'Only the GPU temperature: 67°C.');
@@ -110,10 +110,10 @@ describe('Fleet System Codex conversation', () => {
     const fresh = await core.app.inject({
       method: 'POST',
       url: '/api/system/new',
-      payload: { client: { clientId: 'mbp', name: 'Nick', deviceName: 'MacBook Pro' } },
+      payload: { client: { clientId: 'demo-desktop', name: 'Demo Operator', deviceName: 'Demo Desktop' } },
     });
     expect(fresh.statusCode, JSON.stringify(fresh.json())).toBe(201);
-    expect(fresh.json()).toMatchObject({ title: 'Fleet System' });
+    expect(fresh.json()).toMatchObject({ title: 'Orchestra System' });
     expect(fresh.json().codexSessionId).toBeUndefined();
     expect(fresh.json().id).not.toBe('fleet-system');
     expect(fresh.json().messages).toHaveLength(1);
@@ -124,7 +124,7 @@ describe('Fleet System Codex conversation', () => {
     const third = await core.app.inject({
       method: 'POST',
       url: '/api/system/messages',
-      payload: { text: 'check gpu temperatures again on @core-device', client: { clientId: 'mbp', name: 'Nick', deviceName: 'MacBook Pro' } },
+      payload: { text: 'check gpu temperatures again on @core-device', client: { clientId: 'demo-desktop', name: 'Demo Operator', deviceName: 'Demo Desktop' } },
     });
     expect(third.statusCode, JSON.stringify(third.json())).toBe(201);
     await waitUntil(() => core.store.state.systemConversation.messages.at(-1)?.text === 'GPU temperature: 67°C.');
@@ -136,7 +136,7 @@ describe('Fleet System Codex conversation', () => {
       .map((line) => JSON.parse(line) as { method: string; params: Record<string, unknown> });
     const starts = requests.filter((request) => request.method === 'thread/start');
     const started = starts[0];
-    expect(started?.params.developerInstructions).toContain('Fleet System');
+    expect(started?.params.developerInstructions).toContain('Orchestra System');
     const turns = requests.filter((request) => request.method === 'turn/start');
     expect(starts).toHaveLength(2);
     expect(turns).toHaveLength(3);

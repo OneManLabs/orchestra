@@ -37,36 +37,36 @@ function device(input: Pick<Device, 'id' | 'name' | 'hostname' | 'role'> & { mem
 }
 
 const devices = [
-  device({ id: 'mbp', name: 'MacBook Pro', hostname: 'Nicks-MacBook-Pro.local', role: 'workstation', memoryGb: 36 }),
-  device({ id: 'gpu', name: '5070 Ti GPU', hostname: 'DESKTOP-TNBPMMI', role: 'gpu', memoryGb: 32, gpu: 'NVIDIA GeForce RTX 5070 Ti' }),
-  device({ id: 'nas', name: 'Synology NAS', hostname: 'NAS', role: 'storage', memoryGb: 4 }),
-  device({ id: 'core', name: 'Mac mini 64 GB', hostname: 'Whimzyys-Mac-mini.local', role: 'core', memoryGb: 64 }),
+  device({ id: 'workstation', name: 'Demo Workstation', hostname: 'demo-workstation.local', role: 'workstation', memoryGb: 36 }),
+  device({ id: 'gpu', name: 'Demo GPU', hostname: 'demo-gpu.local', role: 'gpu', memoryGb: 32, gpu: 'Synthetic GPU' }),
+  device({ id: 'storage', name: 'Demo Storage', hostname: 'demo-storage.local', role: 'storage', memoryGb: 4 }),
+  device({ id: 'core', name: 'Demo Core', hostname: 'demo-core.local', role: 'core', memoryGb: 64 }),
 ];
 
-describe('Fleet device mentions', () => {
+describe('Orchestra device mentions', () => {
   it('provides stable human aliases for the live fleet topology', () => {
-    expect(devices.map(preferredDeviceAlias)).toEqual(['mbp', '5070', 'nas', 'mini64']);
+    expect(devices.map(preferredDeviceAlias)).toEqual(['demoworkstation', 'demogpu', 'demostorage', 'core']);
   });
 
   it('resolves multiple @device mentions without guessing unknown aliases', () => {
-    expect(resolveDeviceMentions('check @5070 and @nas, then compare @missing', devices)).toMatchObject([
-      { token: '@5070', deviceIds: ['gpu'], status: 'resolved' },
-      { token: '@nas', deviceIds: ['nas'], status: 'resolved' },
+    expect(resolveDeviceMentions('check @demogpu and @demostorage, then compare @missing', devices)).toMatchObject([
+      { token: '@demogpu', deviceIds: ['gpu'], status: 'resolved' },
+      { token: '@demostorage', deviceIds: ['storage'], status: 'resolved' },
       { token: '@missing', deviceIds: [], status: 'unknown' },
     ]);
   });
 
   it('filters composer suggestions and identifies the active token', () => {
-    expect(activeDeviceMention('status of @mi')).toMatchObject({ query: 'mi' });
-    expect(deviceMentionSuggestions(devices, 'mi').map((item) => item.alias)).toEqual(['mini64']);
-    expect(activeDeviceMention('ask @mbp to review\nnext line')).toBeUndefined();
+    expect(activeDeviceMention('status of @demo')).toMatchObject({ query: 'demo' });
+    expect(deviceMentionSuggestions(devices, 'core').map((item) => item.alias)).toEqual(['core']);
+    expect(activeDeviceMention('ask @demoworkstation to review\nnext line')).toBeUndefined();
   });
 
   it('prefers the one live device when a retired record shares its short alias', () => {
     const retired = device({ id: 'retired', name: 'Retired MacBook Agent', hostname: 'Old-MacBook-Pro.local', role: 'workstation', memoryGb: 16, status: 'offline' });
-    expect(resolveDeviceMentions('run this on @mbp', [retired, devices[0]!])).toMatchObject([
-      { token: '@mbp', deviceIds: ['mbp'], status: 'resolved' },
+    expect(resolveDeviceMentions('run this on @demoworkstation', [retired, devices[0]!])).toMatchObject([
+      { token: '@demoworkstation', deviceIds: ['workstation'], status: 'resolved' },
     ]);
-    expect(deviceMentionSuggestions([retired, devices[0]!]).map((item) => item.alias)).toEqual(['mbp', 'retiredmacbookagent']);
+    expect(deviceMentionSuggestions([retired, devices[0]!]).map((item) => item.alias)).toEqual(['demoworkstation', 'mbp']);
   });
 });

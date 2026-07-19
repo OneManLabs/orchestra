@@ -11,7 +11,7 @@ export interface FleetMcpOptions {
   allowedTools?: string[];
 }
 
-const INSTRUCTIONS = 'Fleet Canvas controls real computers. Inspect fleet state before acting. Prefer the least-busy compatible device, preserve project/data locality, and use read-only operations when possible. Power, deployment, transfer, and write operations affect real systems and may require Core policy approval. Never bypass approval, classification, maintenance, quarantine, workspace, or secret controls. Report job, pipeline, transfer, and artifact identifiers so the operator can follow progress.';
+const INSTRUCTIONS = 'Orchestra controls real computers. Inspect fleet state before acting. Prefer the least-busy compatible device, preserve project/data locality, and use read-only operations when possible. Power, deployment, transfer, and write operations affect real systems and may require Core policy approval. Never bypass approval, classification, maintenance, quarantine, workspace, or secret controls. Report job, pipeline, transfer, and artifact identifiers so the operator can follow progress.';
 
 type ToolResult = { content: Array<{ type: 'text'; text: string }>; structuredContent: Record<string, unknown>; isError?: boolean };
 type ToolConfig = { title?: string; description?: string; inputSchema?: z.ZodRawShape; annotations?: ToolAnnotations };

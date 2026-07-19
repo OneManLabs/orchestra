@@ -53,14 +53,14 @@ export function contextualCodexSessionTitle(input: string, fallback = 'Codex ses
   const lower = text.toLowerCase();
 
   if (/\bsessions?\b/.test(lower) && /\bpermissions?\b/.test(lower)) return 'Codex Session Permissions';
-  if (/\blanding page\b/.test(lower)) return /\bfleet canvas\b/.test(lower) ? 'Fleet Canvas Landing Page' : 'Landing Page';
+  if (/\blanding page\b/.test(lower)) return /\b(?:orchestra|fleet canvas)(?: canvas)?\b/.test(lower) ? 'Orchestra Landing Page' : 'Landing Page';
   if (/\bsessions?\b/.test(lower) && /\b(nam\w*|titl\w*)\b/.test(lower)) {
     if (/\bchatgpt\b/.test(lower)) return 'ChatGPT-Style Session Titles';
     if (/\bcontext\w*\b/.test(lower)) return 'Contextual Session Titles';
     return 'Better Session Titles';
   }
   if (/\b(sidebar|side bar)\b/.test(lower) && /\b(drag\w*|resiz\w*|responsive|bigger|smaller|slide)\b/.test(lower)) {
-    return /\bfleet\b|\bcanvas\b/.test(lower) ? 'Fleet Canvas Sidebar Resizing' : 'Responsive Sidebar Resizing';
+    return /\borchestra\b|\bfleet\b|\bcanvas\b/.test(lower) ? 'Orchestra Sidebar Resizing' : 'Responsive Sidebar Resizing';
   }
 
   const intent = titleIntent(lower);

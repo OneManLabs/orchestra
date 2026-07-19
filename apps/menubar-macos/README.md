@@ -1,13 +1,13 @@
-# Fleet Canvas Menu for macOS
+# Orchestra Menu for macOS
 
-This is the native AppKit status-item companion for Fleet Canvas. It has no Dock
-icon or ordinary windows. Its variable-width menu bar title reflects live Fleet
+This is the native AppKit status-item companion for Orchestra. It has no Dock
+icon or ordinary windows. Its variable-width menu bar title reflects live Orchestra
 Core state:
 
 - `◆` — healthy
 - `◆ 3` — three active jobs
 - `◆ !` — warning, failure, approval, or critical alert
-- `◇` — Fleet Core disconnected
+- `◇` — Orchestra Core disconnected
 
 The app reads the existing connection from:
 
@@ -15,12 +15,14 @@ The app reads the existing connection from:
 ~/Library/Application Support/Fleet Canvas/desktop-connection.json
 ```
 
-It polls `GET /api/v2/menu-bar` every five seconds. The Fleet token is sent only
+The legacy `Fleet Canvas` support-directory name is intentionally retained for upgrade compatibility; the product and interface are branded Orchestra.
+
+It polls `GET /api/v2/menu-bar` every five seconds. The Orchestra token is sent only
 as the request Authorization header and is never logged.
 
-Left-clicking the status item opens a second `Fleet Canvas.app` process with
+Left-clicking the status item opens a second `Orchestra Canvas.app` process with
 `--toggle-menubar`, allowing Electron's single-instance handler to toggle the
-full Fleet Canvas popover. Right-clicking offers **Open Fleet Canvas** and
+full Orchestra popover. Right-clicking offers **Open Orchestra Canvas** and
 **Quit Menu Icon**.
 
 ## Test
@@ -37,7 +39,7 @@ full Fleet Canvas popover. Right-clicking offers **Open Fleet Canvas** and
 
 This installs:
 
-- `~/Applications/Fleet Canvas Menu.app`
+- `~/Applications/Orchestra Menu.app`
 - `~/Library/LaunchAgents/com.fleetcanvas.menubar.plist`
 
 Use `--no-launch` to install without loading the LaunchAgent:

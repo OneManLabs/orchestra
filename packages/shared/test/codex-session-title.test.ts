@@ -4,7 +4,7 @@ import { contextualCodexSessionTitle, contextualCodexSessionTitleFromEvents, isG
 describe('contextual Codex session titles', () => {
   it('creates compact task titles from conversational requests', () => {
     expect(contextualCodexSessionTitle('Please build a dashboard for GPU telemetry.')).toBe('Build Dashboard GPU Telemetry');
-    expect(contextualCodexSessionTitle('The Fleet Canvas right side bar should be draggable, responsive, and resize smaller.')).toBe('Fleet Canvas Sidebar Resizing');
+    expect(contextualCodexSessionTitle('The Orchestra Canvas right side bar should be draggable, responsive, and resize smaller.')).toBe('Orchestra Sidebar Resizing');
     expect(contextualCodexSessionTitle('Can session naming work more like ChatGPT titles on the web?')).toBe('ChatGPT-Style Session Titles');
   });
 
@@ -38,7 +38,7 @@ describe('contextual Codex session titles', () => {
       event('user', 'You run it'),
     ];
 
-    expect(contextualCodexSessionTitleFromEvents(events)).toBe('Fleet Canvas Landing Page');
+    expect(contextualCodexSessionTitleFromEvents(events)).toBe('Orchestra Landing Page');
     expect(contextualCodexSessionTitle('We need to change Codex session permissions during a chat.')).toBe('Codex Session Permissions');
   });
 });

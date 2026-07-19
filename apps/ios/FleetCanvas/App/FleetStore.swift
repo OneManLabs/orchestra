@@ -63,7 +63,7 @@ final class FleetStore {
         defaults.set(clientID, forKey: identityKey)
         self.codexIdentity = CodexClientIdentity(
             clientId: clientID,
-            name: defaults.string(forKey: "fleet.codex.participant-name") ?? "Nick",
+            name: defaults.string(forKey: "fleet.codex.participant-name") ?? "Operator",
             deviceName: UIDevice.current.name
         )
     }

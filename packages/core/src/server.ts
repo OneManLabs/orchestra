@@ -262,11 +262,11 @@ function seedReadmeDemoConversation(conversation: FleetSystemConversation): void
   const mention: FleetDeviceMention = {
     token: '@demo-gpu', alias: 'demo-gpu', deviceIds: ['sim-demo-node-001'], label: 'Demo GPU Node', status: 'resolved',
   };
-  conversation.title = 'Fleet System';
+  conversation.title = 'Orchestra System';
   conversation.messages = [
     {
       id: randomUUID(), at: at(-12_000), role: 'assistant',
-      text: 'Fleet System is ready. Mention a synthetic device such as @demo-gpu or @demo-node-2 to inspect it, manage it, or open a demonstration Codex view.',
+      text: 'Orchestra System is ready. Mention a synthetic device such as @demo-gpu or @demo-node-2 to inspect it, manage it, or open a demonstration Codex view.',
       mentions: [], references: [],
     },
     {
@@ -1305,9 +1305,9 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
         event.type === 'assistant' && new Date(event.at).getTime() >= new Date(active.at).getTime()
       );
       if (assistant?.text) active.text = assistant.text;
-      if (significant === 'error' && (!active.text || active.text === 'Thinking…')) active.text = session.error ?? 'Fleet System Codex could not complete this response.';
+      if (significant === 'error' && (!active.text || active.text === 'Thinking…')) active.text = session.error ?? 'Orchestra System Codex could not complete this response.';
       if (significant === 'turn-completed') {
-        if (!active.text || active.text === 'Thinking…') active.text = 'Fleet System Codex completed the turn without returning a message.';
+        if (!active.text || active.text === 'Thinking…') active.text = 'Orchestra System Codex completed the turn without returning a message.';
         conversation.activeResponseMessageId = undefined;
       }
     }
@@ -1398,13 +1398,13 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
       `- @${systemDeviceAlias(device)}: ${device.name} · ${device.presence?.label ?? device.status} · ${device.role} · ${device.platform}/${device.arch} · Codex ${device.capabilities.codex ? 'ready' : 'unavailable'} · Tailscale ${device.presence?.tailscale.state ?? (device.capabilities.tailscale ? 'configured' : 'unavailable')}`
     );
     return [
-      `${store.state.settings.fleetName} is coordinated by Fleet Core${orchestrator ? ` on ${orchestrator.name}` : ''}.`,
+      `${store.state.settings.fleetName} is coordinated by Orchestra Core${orchestrator ? ` on ${orchestrator.name}` : ''}.`,
       'Architecture:',
-      '- Authorized Fleet Canvas clients (desktop, phone, or browser) connect to Fleet Core.',
-      '- Fleet Core owns fleet identity, live state, routing, projects, sessions, approvals, and preview orchestration.',
-      '- Fleet Core routes Codex work to the Fleet Agent on the selected execution device; that Agent runs Codex app-server against its local workspace.',
+      '- Authorized Orchestra Canvas clients (desktop, phone, or browser) connect to Orchestra Core.',
+      '- Orchestra Core owns fleet identity, live state, routing, projects, sessions, approvals, and preview orchestration.',
+      '- Orchestra Core routes Codex work to the Orchestra Agent on the selected execution device; that Agent runs Codex app-server against its local workspace.',
       '- Shared web previews run on the execution device and reach Fleet clients through Tailscale Serve, Funnel, or Fleet’s private direct-tailnet fallback; Fleet exposes the resulting URL as Website/View Site.',
-      '- The Fleet System conversation and its history belong to Core; ordinary Codex execution and files remain on each selected device.',
+      '- The Orchestra System conversation and its history belong to Core; ordinary Codex execution and files remain on each selected device.',
       `Devices (${store.state.devices.length}):`,
       ...deviceLines,
       `Projects: ${store.state.projects.length} · Codex sessions: ${store.state.sessions.filter((session) => session.kind !== 'fleet-system').length} · Active previews: ${store.state.projects.filter((project) => project.preview?.status === 'running').length}`,
@@ -1422,18 +1422,18 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
 
   function systemDeveloperInstructions(): string {
     return [
-      'You are Fleet System, the conversational control plane for this user’s Fleet Canvas installation.',
-      'This thread is owned by Fleet Core and hosted by the configured Core device, but the operator may be speaking from a MacBook, iPhone, PC, or another authorized client.',
-      'The operator-facing surface is Fleet Canvas, not the Codex CLI UI, ChatGPT web, or the ChatGPT desktop app. Do not redirect the operator to UI capabilities that belong to those other surfaces.',
-      'Fleet’s Website/View Site control is driven by a registered project with a running Fleet shared preview. Treat injected preview state and its Tailscale URL as authoritative; never substitute localhost as the operator-facing result.',
+      'You are Orchestra System, the conversational control plane for this user’s Orchestra installation.',
+      'This thread is owned by Orchestra Core and hosted by the configured Core device, but the operator may be speaking from a MacBook, iPhone, PC, or another authorized client.',
+      'The operator-facing surface is Orchestra Canvas, not the Codex CLI UI, ChatGPT web, or the ChatGPT desktop app. Do not redirect the operator to UI capabilities that belong to those other surfaces.',
+      'Orchestra’s Website/View Site control is driven by a registered project with a running Orchestra shared preview. Treat injected preview state and its Tailscale URL as authoritative; never substitute localhost as the operator-facing result.',
       'Understand natural follow-ups, corrections, pronouns, and terse fragments using the preceding conversation. A correction should refine the prior answer instead of resetting the conversation.',
       'Answer the exact question first. Do not dump the entire fleet architecture or all telemetry unless the operator explicitly asks for it.',
-      'Fleet Core injects authoritative live architecture, device mention resolution, telemetry, project, preview, and child-session context into every turn. Prefer that context over assumptions or stale thread details.',
-      '@aliases identify Fleet devices. Treat them as device identities, never as shell syntax or social-media mentions.',
+      'Orchestra Core injects authoritative live architecture, device mention resolution, telemetry, project, preview, and child-session context into every turn. Prefer that context over assumptions or stale thread details.',
+      '@aliases identify Orchestra devices. Treat them as device identities, never as shell syntax or social-media mentions.',
       'Be concise but operationally useful. Include timestamps only when freshness matters.',
-      'Never claim that a device action, power operation, approval, or child Codex session happened unless the injected context says Fleet Core performed it.',
-      'Fleet Core itself intercepts explicit destructive power actions for confirmation and explicit child-Codex delegation requests. Your role is to understand and explain everything else conversationally.',
-      'Do not edit the Fleet Core host workspace from this system thread. Coding work belongs in a child Codex session on the device and project selected by Fleet Core.',
+      'Never claim that a device action, power operation, approval, or child Codex session happened unless the injected context says Orchestra Core performed it.',
+      'Orchestra Core itself intercepts explicit destructive power actions for confirmation and explicit child-Codex delegation requests. Your role is to understand and explain everything else conversationally.',
+      'Do not edit the Orchestra Core host workspace from this system thread. Coding work belongs in a child Codex session on the device and project selected by Orchestra Core.',
     ].join('\n');
   }
 
@@ -1452,11 +1452,11 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
     const conversation = store.state.systemConversation;
     const focusedDevices = recentSystemDeviceContext(mentions);
     const transcript = conversation.messages.slice(-12).map((message) => {
-      const actor = message.role === 'user' ? message.actor?.name ?? 'Operator' : 'Fleet System';
+      const actor = message.role === 'user' ? message.actor?.name ?? 'Operator' : 'Orchestra System';
       return `${actor}: ${message.text || '[response in progress]'}`;
     });
     return [
-      `[Fleet Core authoritative runtime context · ${new Date().toISOString()}]`,
+      `[Orchestra Core authoritative runtime context · ${new Date().toISOString()}]`,
       fleetArchitecture(),
       '',
       mentions.length ? 'Mention resolution:' : 'No new @device mention appeared in this turn.',
@@ -1465,7 +1465,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
       focusedDevices.length ? 'Focused live device telemetry:' : 'No device telemetry was selected for this turn.',
       ...focusedDevices.map(deviceTelemetry),
       '',
-      'Recent visible Fleet System transcript, including any actions handled directly by Fleet Core:',
+      'Recent visible Orchestra System transcript, including any actions handled directly by Orchestra Core:',
       ...transcript,
       '',
       '[Operator message]',
@@ -1475,7 +1475,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
 
   async function ensureSystemCodexSession(): Promise<CodexSession> {
     const orchestrator = systemOrchestrator();
-    if (!orchestrator) throw httpError(409, 'No online Codex-capable Fleet System host is available.');
+    if (!orchestrator) throw httpError(409, 'No online Codex-capable Orchestra System host is available.');
     let session = systemCodexSession();
     if (session && session.deviceId === orchestrator.id) {
       if (['ready', 'thinking', 'completed'].includes(session.status)) return session;
@@ -1491,7 +1491,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
     const created = await createCodexSession({
       deviceId: orchestrator.id,
       cwd: orchestrator.projectRoots[0] ?? '',
-      title: 'Fleet System Orchestrator',
+      title: 'Orchestra System Orchestrator',
       permissionMode: 'read-only',
       approvalPolicy: 'never',
     }, {
@@ -1527,11 +1527,11 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
     const context = [
       fleetCodexTurnContext(fleetCodexContext(session)),
       '',
-      '[Fleet Core live device inventory and system architecture]',
+      '[Orchestra Core live device inventory and system architecture]',
       fleetArchitecture(),
       ...(mentions.length ? [
         '',
-        '[Fleet Core resolved device mentions]',
+        '[Orchestra Core resolved device mentions]',
         'Treat these as Fleet device identities, not shell syntax.',
         ...resolved.map((device) => deviceTelemetry(device)),
         ...unresolved.map((mention) => `${mention.token}: ${mention.status === 'ambiguous' ? `ambiguous (${mention.label})` : 'not found in the current fleet'}`),
@@ -1693,7 +1693,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
 
   function delegationTitle(text: string, device: Device): string {
     const task = text.replace(/@[A-Za-z0-9._-]+/g, '').replace(/\s+/g, ' ').trim();
-    return `Fleet System · ${device.name} · ${task || 'Codex task'}`.slice(0, 240);
+    return `Orchestra System · ${device.name} · ${task || 'Codex task'}`.slice(0, 240);
   }
 
   function powerActionFromText(text: string): DevicePowerAction | undefined {
@@ -1863,7 +1863,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
       store.state.systemConversation.pendingActions.unshift(pending);
       appendSystemMessage({
         role: 'assistant',
-        text: `Confirm ${action} for ${devices.map((device) => `${device.name} (@${preferredDeviceAlias(device)})`).join(', ')}. Fleet Core will execute this once and record the result.`,
+        text: `Confirm ${action} for ${devices.map((device) => `${device.name} (@${preferredDeviceAlias(device)})`).join(', ')}. Orchestra Core will execute this once and record the result.`,
         mentions,
         references: devices.map((device) => deviceReference(device)),
         pendingActionId: pending.id,
@@ -1876,7 +1876,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
       const reports: string[] = [];
       for (const device of devices) {
         if (!agentSockets.has(device.id) || device.status === 'offline' || device.status === 'degraded') {
-          reports.push(`${device.name} is offline, so Fleet Core could not start Codex there.`);
+          reports.push(`${device.name} is offline, so Orchestra Core could not start Codex there.`);
           references.push(deviceReference(device));
           continue;
         }
@@ -1896,7 +1896,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
             approvalPolicy: 'on-request',
           });
           const delegatedPrompt = [
-            `Delegated by the Fleet System conversation owned by Fleet Core.`,
+            `Delegated by the Orchestra System conversation owned by Orchestra Core.`,
             `Target execution device: ${device.name} (@${preferredDeviceAlias(device)}, ${device.id}).`,
             project ? `Project: ${project.name}.` : 'No Fleet project was explicitly selected; use the session working directory.',
             '',
@@ -1907,11 +1907,11 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
             'Work on the operator request from this device. Report concrete progress and ask for approval normally when required.',
           ].join('\n');
           void sendCodexMessage(session, body.text, {
-            actor: { clientId: 'fleet-system', name: 'Fleet System', deviceName: 'Fleet Core' },
+            actor: { clientId: 'fleet-system', name: 'Orchestra System', deviceName: 'Orchestra Core' },
             agentText: delegatedPrompt,
           }).catch((error) => appendSystemMessage({
             role: 'assistant',
-            text: `Codex started on ${device.name}, but Fleet Core could not deliver the delegated task: ${error instanceof Error ? error.message : String(error)}`,
+            text: `Codex started on ${device.name}, but Orchestra Core could not deliver the delegated task: ${error instanceof Error ? error.message : String(error)}`,
             references: [{
               id: randomUUID(),
               kind: 'codex-session',
@@ -1960,7 +1960,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
         agentText,
       });
     } catch (error) {
-      response.text = `Fleet System Codex is unavailable: ${error instanceof Error ? error.message : String(error)}`;
+      response.text = `Orchestra System Codex is unavailable: ${error instanceof Error ? error.message : String(error)}`;
       store.state.systemConversation.activeResponseMessageId = undefined;
       store.state.systemConversation.error = error instanceof Error ? error.message : String(error);
       broadcastSystem();
@@ -2067,23 +2067,23 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
 
   app.post('/api/system/new', async (request, reply) => {
     const body = systemConversationActionSchema.parse(request.body ?? {});
-    if (store.state.systemConversation.activeResponseMessageId) throw httpError(409, 'Wait for Fleet System to finish before starting a new conversation.');
+    if (store.state.systemConversation.activeResponseMessageId) throw httpError(409, 'Wait for Orchestra System to finish before starting a new conversation.');
     await retireSystemCodexSession();
     const conversation = store.startNewSystemConversation();
     broadcastSystem();
     appendAudit(store, { actorType: 'user', actorId: body.client?.clientId ?? 'local-operator', action: 'system.conversation.create', resourceType: 'system-conversation', resourceId: conversation.id, outcome: 'success', detail: { actor: body.client } });
-    activity({ type: 'system', severity: 'info', title: 'New Fleet System conversation', detail: `${body.client?.name ?? 'An operator'} started a fresh Core-owned system conversation.` });
+    activity({ type: 'system', severity: 'info', title: 'New Orchestra System conversation', detail: `${body.client?.name ?? 'An operator'} started a fresh Core-owned system conversation.` });
     return reply.code(201).send(conversation);
   });
 
   app.post('/api/system/clear', async (request) => {
     const body = systemConversationActionSchema.parse(request.body ?? {});
-    if (store.state.systemConversation.activeResponseMessageId) throw httpError(409, 'Wait for Fleet System to finish before clearing the conversation.');
+    if (store.state.systemConversation.activeResponseMessageId) throw httpError(409, 'Wait for Orchestra System to finish before clearing the conversation.');
     await retireSystemCodexSession();
     const conversation = store.clearSystemConversation();
     broadcastSystem();
     appendAudit(store, { actorType: 'user', actorId: body.client?.clientId ?? 'local-operator', action: 'system.conversation.clear', resourceType: 'system-conversation', resourceId: conversation.id, outcome: 'success', detail: { actor: body.client } });
-    activity({ type: 'system', severity: 'info', title: 'Fleet System conversation cleared', detail: `${body.client?.name ?? 'An operator'} cleared the active Core-owned system conversation and reset its Codex context.` });
+    activity({ type: 'system', severity: 'info', title: 'Orchestra System conversation cleared', detail: `${body.client?.name ?? 'An operator'} cleared the active Core-owned system conversation and reset its Codex context.` });
     return conversation;
   });
 
@@ -2124,10 +2124,10 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
   app.post('/api/system/power-actions/:id/confirm', async (request) => {
     const body = systemPowerConfirmationSchema.parse(request.body);
     const pendingAction = store.state.systemConversation.pendingActions.find((candidate) => candidate.id === (request.params as { id: string }).id);
-    if (!pendingAction) throw httpError(404, 'Fleet System power action not found.');
+    if (!pendingAction) throw httpError(404, 'Orchestra System power action not found.');
     if (pendingAction.status !== 'pending') throw httpError(409, `This power action is already ${pendingAction.status}.`);
     if (pendingAction.action !== body.action || [...pendingAction.deviceIds].sort().join('\0') !== [...body.deviceIds].sort().join('\0')) {
-      throw httpError(409, 'Power confirmation no longer matches the pending Fleet System action.');
+      throw httpError(409, 'Power confirmation no longer matches the pending Orchestra System action.');
     }
     pendingAction.status = 'running';
     broadcastSystem();
@@ -2148,7 +2148,7 @@ export async function startFleetCore(options: FleetCoreOptions = {}): Promise<Fl
       }),
     });
     appendAudit(store, { actorType: 'user', actorId: body.client?.clientId ?? 'local-operator', action: `devices.power.${pendingAction.action}`, resourceType: 'device-batch', resourceId: pendingAction.id, outcome: failed.length ? 'failed' : 'success', detail: { deviceIds: pendingAction.deviceIds, results, actor: body.client } });
-    activity({ type: 'system', severity: failed.length ? 'warning' : 'success', title: `Fleet System ${pendingAction.action}`, detail: pendingAction.error ?? `Accepted for ${pendingAction.deviceIds.map(deviceName).join(', ')}.` });
+    activity({ type: 'system', severity: failed.length ? 'warning' : 'success', title: `Orchestra System ${pendingAction.action}`, detail: pendingAction.error ?? `Accepted for ${pendingAction.deviceIds.map(deviceName).join(', ')}.` });
     return { action: pendingAction, results };
   });
 

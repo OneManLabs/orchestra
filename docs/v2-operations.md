@@ -1,4 +1,4 @@
-# Fleet Canvas V2 operations
+# Orchestra V2 operations
 
 ## Production topology
 
@@ -30,7 +30,7 @@ Issue ordinary API tokens with a base `read` or `write` scope and add only the s
 2. The plaintext token is returned once. Core stores only a hash, expiry, use count, and requested role/group metadata.
 3. Start the Agent with `FLEET_ENROLLMENT_TOKEN`. It exchanges the token at `/api/v2/enrollment/exchange` for a device-bound credential.
 4. The Agent writes that credential to its private data directory with mode `0600` where supported.
-5. Rename, assign a role/site/group, and verify capability/trust information in Fleet Canvas.
+5. Rename, assign a role/site/group, and verify capability/trust information in Orchestra.
 6. Decommissioning revokes the credential before removing runtime access.
 
 QR enrollment encodes the Core URL and short-lived token. Treat an unexpired QR code as a credential.
@@ -102,10 +102,10 @@ The restore endpoint never replaces live runtime objects. It validates integrity
 
 - Bind Core to an isolated management network.
 - Block Core webhook/HTTP destinations with policy and `FLEET_HTTP_ALLOWED_HOSTS`, and use host/container egress controls for Agent shell and Codex processes.
-- Transfer signed native Agent packages through the organization's approved offline software-distribution process. Fleet records and verifies release checksums/signatures, but this repository does not ship an offline-bundle importer or package-signing identity.
+- Transfer signed native Agent packages through the organization's approved offline software-distribution process. Orchestra records and verifies release checksums/signatures, but this repository does not ship an offline-bundle importer or package-signing identity.
 - Use local Codex/model tooling only when external API calls are prohibited.
 - Export audit/compliance evidence through an approved removable-media procedure.
-- Configure Fleet policy/classification/zone rules, Core HTTP host allowlists, and separate host/container command and egress controls.
+- Configure Orchestra policy/classification/zone rules, Core HTTP host allowlists, and separate host/container command and egress controls.
 
 An air-gapped deployment needs locally operated certificate issuance/trust, notification delivery, identity, package distribution, and model services where those functions are required.
 

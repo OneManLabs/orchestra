@@ -1,6 +1,6 @@
-# Fleet MCP server
+# Orchestra MCP server
 
-`@fleet/mcp` lets Codex operate Fleet Canvas through narrow, typed tools. It is a separate gateway to Core, so it can run beside Codex over stdio or behind an authenticated Streamable HTTP endpoint.
+`@fleet/mcp` lets Codex operate Orchestra through narrow, typed tools. It is a separate gateway to Core, so it can run beside Codex over stdio or behind an authenticated Streamable HTTP endpoint.
 
 ## Tools
 

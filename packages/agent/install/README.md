@@ -1,6 +1,6 @@
-# Fleet Agent installation and packages
+# Orchestra Agent installation and packages
 
-Fleet Agent can run as a native background service on macOS, Windows, Debian/Ubuntu, RPM-based Linux, and Raspberry Pi OS. Agents make outbound connections to Core; none of these installers opens a firewall port.
+Orchestra Agent can run as a native background service on macOS, Windows, Debian/Ubuntu, RPM-based Linux, and Raspberry Pi OS. Agents make outbound connections to Core; none of these installers opens a firewall port.
 
 ## Runtime bundle
 
@@ -191,7 +191,7 @@ A production deployment needs a separate, explicitly enabled privileged supervis
 2. Construct the release path from the validated version; never trust an arbitrary `artifactPath` outside the release directory.
 3. Recompute the artifact SHA-256 and independently verify the manifest signature with a root-owned public key.
 4. Inspect native package identity, version, platform, architecture, and native code/repository signature.
-5. Install from a process outside the Fleet Agent service/runtime (`installer -pkg`, `msiexec /i`, `dpkg -i`, or `rpm -Uvh`).
+5. Install from a process outside the Orchestra Agent service/runtime (`installer -pkg`, `msiexec /i`, `dpkg -i`, or `rpm -Uvh`).
 6. Wait for the upgraded Agent to reconnect and report the expected version/protocol before marking success.
 7. Record installer exit status outside Agent-writable state and retain the previous verified package as the rollback candidate.
 8. On failure, leave the rollout paused and require an explicit rollback approval; do not repeatedly install from a restart loop.

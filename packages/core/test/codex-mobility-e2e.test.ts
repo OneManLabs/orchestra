@@ -54,10 +54,10 @@ describe('Codex session mobility through real Agents', () => {
     const sessionId = created.json().id as string;
     expect(created.json()).toMatchObject({ deviceId: 'source-device', threadId: 'thread-start', status: 'ready', titleSource: 'manual' });
     expect(created.json().model).toBeUndefined();
-    expect(created.json().developerInstructions).toContain('operator-facing surface is Fleet Canvas');
+    expect(created.json().developerInstructions).toContain('operator-facing surface is Orchestra Canvas');
     expect(created.json().developerInstructions).toContain('not through the Codex CLI UI, ChatGPT web, or the ChatGPT desktop app');
-    expect(created.json().developerInstructions).toContain('Fleet clients connect to the Fleet Core control plane');
-    expect(created.json().developerInstructions).toContain('Fleet Agent on the selected execution device');
+    expect(created.json().developerInstructions).toContain('Orchestra clients connect to the Orchestra Core control plane');
+    expect(created.json().developerInstructions).toContain('Orchestra Agent on the selected execution device');
     expect(created.json().developerInstructions).toContain('Mobility project');
 
     const sourceDevice = core.store.state.devices.find((device) => device.id === 'source-device')!;

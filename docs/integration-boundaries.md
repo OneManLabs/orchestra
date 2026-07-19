@@ -1,6 +1,6 @@
 # Integration boundaries
 
-Fleet Canvas deliberately fails or reports metadata-only state when an external integration is not actually available. The interface should not present an unavailable capability as operational.
+Orchestra deliberately fails or reports metadata-only state when an external integration is not actually available. The interface should not present an unavailable capability as operational.
 
 | Capability | What this repository ships | Boundary that remains |
 | --- | --- | --- |

@@ -194,7 +194,7 @@ export function SystemPage({
           </button>
         </div>
         <div className="system-composer__examples">
-          {['gpu temps on @5070', 'status of @nas', 'start Codex on @mbp to review Orchestra Canvas'].map((example) => <button type="button" key={example} onClick={() => { setDraft(example); input.current?.focus(); }}>{example}</button>)}
+          {['gpu temps on @demo-gpu', 'status of @demo-storage', 'start Codex on @demo-workstation to review Orchestra'].map((example) => <button type="button" key={example} onClick={() => { setDraft(example); input.current?.focus(); }}>{example}</button>)}
         </div>
         <div className="system-composer__input">
           {conductorMode ? <WandSparkles size={17} /> : <MessageSquare size={17} />}

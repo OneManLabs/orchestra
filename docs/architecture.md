@@ -1,9 +1,9 @@
-# Fleet architecture
+# Orchestra architecture
 
 ## Runtime topology
 
 ```text
-Fleet Desktop ── HTTPS/WS ── Fleet Core ── authenticated WS ── Fleet Agent
+Orchestra Desktop ── HTTPS/WS ── Orchestra Core ── authenticated WS ── Orchestra Agent
      │                           │                                  │
  renderer sandbox          persistent state                local processes
  narrow IPC bridge         scheduling/events          Codex / PTY / telemetry
@@ -21,7 +21,7 @@ Core is the only rendezvous point. Agents establish outbound connections, so man
 | Job/session metadata and bounded events | Core | Atomic JSON store |
 | Terminal process | Agent | Runtime only |
 | Codex process and credentials | Agent | Runtime/local Codex home |
-| Repositories and artifact bytes | Device/NAS | Outside Fleet Core; metadata/checksums in Core |
+| Repositories and artifact bytes | Device/NAS | Outside Orchestra Core; metadata/checksums in Core |
 
 ## Control flows
 
@@ -45,13 +45,13 @@ Core is the only rendezvous point. Agents establish outbound connections, so man
 1. Desktop or iOS chooses a device, browses an Agent-confined folder (or enters a path), and selects the project, approval policy, and sandbox. Folder creation is dispatched to the same Agent; a NAS path is eligible for live editing only when it is mounted and allowed on the execution device.
 2. Agent starts the local Codex app-server over stdio and performs the initialize handshake.
 3. Agent starts a thread rooted at the selected directory.
-4. Turns and notifications stream as structured JSON-RPC. Fleet normalizes important events while retaining bounded raw metadata for forward compatibility.
+4. Turns and notifications stream as structured JSON-RPC. Orchestra normalizes important events while retaining bounded raw metadata for forward compatibility.
 5. App-server requests that require approval are persisted and shown in Desktop. The explicit operator decision is returned using the original JSON-RPC request ID.
-6. Fleet's command center forwards an allowlisted set of official app-server UI requests for model, permissions, collaboration modes, review, compaction, goals, extensions, and account status. Cross-thread/workspace targets and host escape-hatch RPCs are rejected at Core.
+6. Orchestra's command center forwards an allowlisted set of official app-server UI requests for model, permissions, collaboration modes, review, compaction, goals, extensions, and account status. Cross-thread/workspace targets and host escape-hatch RPCs are rejected at Core.
 
 ### Codex session continuity
 
-Resume and same-device fork call the Codex app-server's native thread operations. A cross-device fork or move asks the source Agent for the selected thread rollout, transfers that bounded file through Core in ordered chunks, verifies its declared size and SHA-256 digest on the destination Agent, and then asks the destination's local Codex app-server to resume or fork it. Project-backed sessions resolve the destination's registered project path instead of reusing a source-machine path. A move stops the source only after the destination is live; a fork leaves the source intact. Fleet never copies Codex authentication state.
+Resume and same-device fork call the Codex app-server's native thread operations. A cross-device fork or move asks the source Agent for the selected thread rollout, transfers that bounded file through Core in ordered chunks, verifies its declared size and SHA-256 digest on the destination Agent, and then asks the destination's local Codex app-server to resume or fork it. Project-backed sessions resolve the destination's registered project path instead of reusing a source-machine path. A move stops the source only after the destination is live; a fork leaves the source intact. Orchestra never copies Codex authentication state.
 
 ### Queued job
 
@@ -67,7 +67,7 @@ Resume and same-device fork call the Codex app-server's native thread operations
 - **Core:** trusted coordinator. Treat possession of its recovery token as administrative capability; prefer scoped API tokens and device-bound credentials for routine clients. Loopback is authenticated unless a test/dev process explicitly opts out.
 - **Agent:** trusted executor for its host. It validates message shape and only implements named commands; it is not a generic inbound RPC listener.
 - **Codex:** isolated according to the selected sandbox and approval policy, using local authentication.
-- **Tailscale:** network identity and reachability layer. Fleet application authentication remains required because reachability alone is not authorization.
+- **Tailscale:** network identity and reachability layer. Orchestra application authentication remains required because reachability alone is not authorization.
 
 ## Persistence behavior
 

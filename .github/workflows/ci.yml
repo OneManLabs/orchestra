@@ -1,4 +1,4 @@
-name: Fleet Canvas CI
+name: Orchestra CI
 
 on:
   push:

@@ -1,6 +1,6 @@
 # Responsive web and mobile client
 
-Fleet Canvas ships the same responsive React control surface as a static PWA. The production build never embeds a Fleet credential. Operators enter a scoped API token at runtime; it remains in JavaScript memory and is discarded on refresh or close. Only the non-secret Core URL is retained for the browser session.
+Orchestra ships the same responsive React control surface as a static PWA. The production build never embeds an Orchestra credential. Operators enter a scoped API token at runtime; it remains in JavaScript memory and is discarded on refresh or close. Only the non-secret Core URL is retained for the browser session.
 
 ## Build
 
@@ -18,7 +18,7 @@ https://fleet.example.ts.net/ws/    -> ws://127.0.0.1:4780/ws/ (upgrade enabled)
 
 With that layout the client discovers Core from `window.location.origin`; no build-time URL or token is needed. Configure the reverse proxy to preserve WebSocket upgrades, cap request sizes, restrict the site to the tailnet, and send a production Content Security Policy appropriate to the final Core/media origins. The packaged Electron renderer receives its own restrictive build-time CSP; the static web build deliberately leaves that deployment-specific header to the HTTPS reverse proxy. Core still performs its own bearer/scope, origin, and policy checks.
 
-For a separate web origin, set `VITE_FLEET_CORE_URL` only to the public Core origin at build time and add the exact web origin to `FLEET_ALLOWED_ORIGINS` on Core. Never set `VITE_FLEET_TOKEN`: Fleet Canvas deliberately has no build-time token path.
+For a separate web origin, set `VITE_FLEET_CORE_URL` only to the public Core origin at build time and add the exact web origin to `FLEET_ALLOWED_ORIGINS` on Core. Never set `VITE_FLEET_TOKEN`: Orchestra deliberately has no build-time token path.
 
 ## Operator access
 

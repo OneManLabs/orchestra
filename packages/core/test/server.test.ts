@@ -24,8 +24,8 @@ function testDevice(): Device {
   const now = new Date().toISOString();
   return {
     id: 'gpu-device',
-    name: '5070 Ti GPU',
-    hostname: 'DESKTOP-GPU',
+    name: 'Demo GPU',
+    hostname: 'demo-gpu.local',
     role: 'gpu',
     status: 'online',
     platform: 'win32',
@@ -91,7 +91,7 @@ describe('Fleet Core HTTP API', () => {
       title: 'Release control room', titleSource: 'manual',
     });
     expect(reopened.store.state.sessions.find((session) => session.id === 'legacy-follow-up')).toMatchObject({
-      title: 'Fleet Canvas Landing Page', titleSource: 'generated',
+      title: 'Orchestra Landing Page', titleSource: 'generated',
     });
   });
 
@@ -162,18 +162,18 @@ describe('Fleet Core HTTP API', () => {
       pendingApprovals: [],
       participants: [],
     });
-    const nick = { clientId: 'client-nick', name: 'Nick', deviceName: 'MacBook' };
-    const phone = { clientId: 'client-phone', name: 'Nick', deviceName: 'iPhone' };
+    const operator = { clientId: 'client-desktop', name: 'Demo Operator', deviceName: 'Demo Desktop' };
+    const phone = { clientId: 'client-phone', name: 'Demo Operator', deviceName: 'Demo Phone' };
 
     const joined = await instance.app.inject({
       method: 'POST',
       url: '/api/sessions/shared-session/presence',
-      payload: { ...nick, typing: true },
+      payload: { ...operator, typing: true },
     });
     expect(joined.statusCode).toBe(200);
     expect(joined.json()).toMatchObject({
-      participant: { ...nick, typing: true },
-      controllerClientId: nick.clientId,
+      participant: { ...operator, typing: true },
+      controllerClientId: operator.clientId,
     });
     await instance.app.inject({
       method: 'POST',
@@ -190,7 +190,7 @@ describe('Fleet Core HTTP API', () => {
     expect(blocked.json().error).toContain('currently controls');
 
     const session = instance.store.state.sessions[0]!;
-    session.participants!.find((participant) => participant.clientId === nick.clientId)!.lastSeenAt =
+    session.participants!.find((participant) => participant.clientId === operator.clientId)!.lastSeenAt =
       new Date(Date.now() - 180_000).toISOString();
     const transferred = await instance.app.inject({
       method: 'POST',
@@ -238,14 +238,14 @@ describe('Fleet Core HTTP API', () => {
       url: '/api/sessions/stopped-session/permissions',
       payload: {
         permissionMode: 'read-only',
-        client: { clientId: 'client-nick', name: 'Nick', deviceName: 'MacBook' },
+        client: { clientId: 'client-desktop', name: 'Demo Operator', deviceName: 'Demo Desktop' },
       },
     });
 
     expect(response.statusCode, JSON.stringify(response.json())).toBe(200);
     expect(response.json()).toMatchObject({ permissionMode: 'read-only', approvalPolicy: 'on-request' });
     expect(instance.store.state.v2.audit.at(-1)).toMatchObject({
-      actorId: 'client-nick',
+      actorId: 'client-desktop',
       action: 'codex.session.permissions.update',
       resourceId: 'stopped-session',
       detail: { previousMode: 'workspace-write', permissionMode: 'read-only' },
@@ -258,7 +258,7 @@ describe('Fleet Core HTTP API', () => {
     const response = await instance.app.inject({
       method: 'POST',
       url: '/api/system/messages',
-      payload: { text: 'gpu temps on @5070', client: { clientId: 'iphone', name: 'Nick', deviceName: 'iPhone' } },
+      payload: { text: 'gpu temps on @demo-gpu', client: { clientId: 'demo-phone', name: 'Demo Operator', deviceName: 'Demo Phone' } },
     });
     expect(response.statusCode).toBe(201);
     const conversation = response.json();
@@ -266,10 +266,10 @@ describe('Fleet Core HTTP API', () => {
       role: 'assistant',
       references: [{ kind: 'device', deviceId: 'gpu-device' }],
     });
-    expect(conversation.messages.at(-1).text).toContain('Fleet System Codex is unavailable');
+    expect(conversation.messages.at(-1).text).toContain('Orchestra System Codex is unavailable');
     expect(conversation.messages.at(-2)).toMatchObject({
       role: 'user',
-      mentions: [{ token: '@5070', deviceIds: ['gpu-device'], status: 'resolved' }],
+      mentions: [{ token: '@demo-gpu', deviceIds: ['gpu-device'], status: 'resolved' }],
     });
   });
 
@@ -280,7 +280,7 @@ describe('Fleet Core HTTP API', () => {
       id: 'operator-message',
       at: now,
       role: 'user',
-      text: 'status of @nas',
+      text: 'status of @demo-storage',
       mentions: [],
       references: [],
     });
@@ -303,7 +303,7 @@ describe('Fleet Core HTTP API', () => {
     const response = await instance.app.inject({
       method: 'POST',
       url: '/api/system/clear',
-      payload: { client: { clientId: 'mbp', name: 'Nick', deviceName: 'MacBook Pro' } },
+      payload: { client: { clientId: 'demo-desktop', name: 'Demo Operator', deviceName: 'Demo Desktop' } },
     });
 
     expect(response.statusCode, JSON.stringify(response.json())).toBe(200);
@@ -311,7 +311,7 @@ describe('Fleet Core HTTP API', () => {
     expect(response.json().codexSessionId).toBeUndefined();
     expect(instance.store.state.sessions.some((session) => session.id === 'hidden-system-session')).toBe(false);
     expect(instance.store.state.v2.audit.at(-1)).toMatchObject({
-      actorId: 'mbp',
+      actorId: 'demo-desktop',
       action: 'system.conversation.clear',
       resourceId: 'fleet-system',
     });
@@ -339,13 +339,13 @@ describe('Fleet Core HTTP API', () => {
     const response = await instance.app.inject({
       method: 'POST',
       url: '/api/sessions/mention-session/messages',
-      payload: { text: 'compare gpu temps on @5070' },
+      payload: { text: 'compare gpu temps on @demo-gpu' },
     });
     expect(response.statusCode).toBe(409);
     expect(instance.store.state.sessions[0]!.events[0]).toMatchObject({
       type: 'user',
-      text: 'compare gpu temps on @5070',
-      data: { fleetDeviceMentions: [{ token: '@5070', deviceIds: ['gpu-device'], status: 'resolved' }] },
+      text: 'compare gpu temps on @demo-gpu',
+      data: { fleetDeviceMentions: [{ token: '@demo-gpu', deviceIds: ['gpu-device'], status: 'resolved' }] },
     });
   });
 });

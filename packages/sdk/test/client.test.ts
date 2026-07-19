@@ -30,7 +30,7 @@ describe('FleetClient', () => {
   it('rejects credential-bearing base URLs and malformed JSON', async () => {
     expect(() => new FleetClient({ baseUrl: 'https://token@example.test' })).toThrow('must not contain credentials');
     const client = new FleetClient({ baseUrl: 'https://core.example', fetch: async () => new Response('{broken', { status: 200, headers: { 'content-type': 'application/json' } }) });
-    await expect(client.snapshot()).rejects.toEqual(expect.objectContaining<FleetApiError>({ message: 'Fleet Core returned invalid JSON.' }));
+    await expect(client.snapshot()).rejects.toEqual(expect.objectContaining<FleetApiError>({ message: 'Orchestra Core returned invalid JSON.' }));
   });
 
   it('requires explicit confirmation when restoring a backup', async () => {

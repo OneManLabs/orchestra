@@ -1,4 +1,4 @@
-# Fleet Canvas V2 development
+# Orchestra V2 development
 
 ## Commands
 
@@ -22,7 +22,7 @@ Run opt-in virtual development devices against a local Core:
 npm run dev:simulator -- --count 12 --latency 250 --failure-rate 0.05
 ```
 
-Simulator devices always advertise the `simulator` label and `Fleet Simulator` OS. The production UI never seeds devices or silently enables simulation.
+Simulator devices always advertise the `simulator` label and `Orchestra Simulator` OS. The production UI never seeds devices or silently enables simulation.
 
 The simulator sends its token in the WebSocket Authorization header and reports protocol version 2, matching the real Agent's registration hardening. It intentionally cannot execute real file, power, desktop, or Codex operations.
 

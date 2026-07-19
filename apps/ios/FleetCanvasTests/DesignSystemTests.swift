@@ -10,16 +10,16 @@ struct DesignSystemTests {
 
     @Test
     func fleetDeviceMentionComposerFindsAndInsertsTheActiveAlias() {
-        let draft = "gpu temps on @50"
-        #expect(fleetDeviceMentionQuery(in: draft)?.query == "50")
+        let draft = "gpu temps on @demo"
+        #expect(fleetDeviceMentionQuery(in: draft)?.query == "demo")
         let suggestion = FleetDeviceMentionSuggestion(
             id: "gpu",
-            alias: "5070",
-            label: "5070 Ti GPU",
+            alias: "demo-gpu",
+            label: "Demo GPU",
             detail: "Online · GPU"
         )
-        #expect(fleetInsertDeviceMention(suggestion, into: draft) == "gpu temps on @5070 ")
-        #expect(fleetDeviceMentionQuery(in: "ask @nas to inspect\nnext line") == nil)
+        #expect(fleetInsertDeviceMention(suggestion, into: draft) == "gpu temps on @demo-gpu ")
+        #expect(fleetDeviceMentionQuery(in: "ask @demo-storage to inspect\nnext line") == nil)
     }
 
     @Test

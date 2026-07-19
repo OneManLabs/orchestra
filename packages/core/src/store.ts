@@ -24,7 +24,7 @@ export const MAX_SYSTEM_CONVERSATIONS = 50;
 export const MAX_EVENT_TEXT_LENGTH = 65_536;
 export const MAX_LIVE_CODEX_EVENTS = 200;
 export const MAX_LIVE_CODEX_EVENT_BYTES = 512 * 1_024;
-export const CORE_RESTART_SESSION_RECOVERY_ERROR = 'Fleet Core restarted; waiting for the execution Agent to reconnect.';
+export const CORE_RESTART_SESSION_RECOVERY_ERROR = 'Orchestra Core restarted; waiting for the execution Agent to reconnect.';
 
 export interface FleetPrivateState {
   enrollmentTokenHashes: Record<string, string>;
@@ -79,12 +79,12 @@ function createSystemConversation(includeWelcome = true, id = 'fleet-system'): F
   const now = new Date().toISOString();
   return {
     id,
-    title: 'Fleet System',
+    title: 'Orchestra System',
     messages: includeWelcome ? [{
       id: randomUUID(),
       at: now,
       role: 'assistant',
-      text: 'Fleet System is ready. Mention a device such as @mini64, @mbp, @5070, or @nas to inspect it, manage it, or start a Codex conversation there.',
+      text: 'Orchestra System is ready. Mention a device such as @demo-core, @demo-workstation, @demo-gpu, or @demo-storage to inspect it, manage it, or start a Codex conversation there.',
       mentions: [],
       references: [],
     }] : [],
@@ -294,7 +294,7 @@ export class FleetStore {
     if (state.systemConversation.activeResponseMessageId) {
       const interrupted = state.systemConversation.messages.find((message) => message.id === state.systemConversation.activeResponseMessageId);
       if (interrupted && (!interrupted.text || interrupted.text === 'Thinking…')) {
-        interrupted.text = 'Fleet Core restarted before Codex finished this response. Please send the request again.';
+        interrupted.text = 'Orchestra Core restarted before Codex finished this response. Please send the request again.';
       }
       state.systemConversation.activeResponseMessageId = undefined;
       reconciled = true;
@@ -305,7 +305,7 @@ export class FleetStore {
       project.preview.desiredState ??= project.preview.status === 'stopped' ? 'stopped' : 'running';
       if (['starting', 'running', 'restarting'].includes(project.preview.status)) {
         project.preview.status = 'offline';
-        project.preview.error = 'Fleet Core restarted; waiting for the hosting Agent to reconnect.';
+        project.preview.error = 'Orchestra Core restarted; waiting for the hosting Agent to reconnect.';
         project.preview.updatedAt = now;
         reconciled = true;
       }
@@ -313,7 +313,7 @@ export class FleetStore {
     for (const job of state.jobs) {
       if (['dispatching', 'running', 'awaiting-approval'].includes(job.status)) {
         job.status = 'failed';
-        job.error = 'Fleet Core restarted while this job was active.';
+        job.error = 'Orchestra Core restarted while this job was active.';
         job.completedAt = now;
         reconciled = true;
       }
@@ -321,11 +321,11 @@ export class FleetStore {
     for (const run of state.v2.pipelineRuns) {
       if (!['queued', 'running'].includes(run.state)) continue;
       run.state = 'failed';
-      run.error = 'Fleet Core restarted while this pipeline was active.';
+      run.error = 'Orchestra Core restarted while this pipeline was active.';
       run.completedAt = now;
       for (const node of run.nodeRuns.filter((item) => ['pending', 'queued', 'running'].includes(item.state))) {
         node.state = node.state === 'pending' ? 'skipped' : 'failed';
-        node.error = node.state === 'failed' ? 'Fleet Core restarted while this node was active.' : node.error;
+        node.error = node.state === 'failed' ? 'Orchestra Core restarted while this node was active.' : node.error;
         node.completedAt = now;
       }
       reconciled = true;
@@ -333,7 +333,7 @@ export class FleetStore {
     for (const transfer of state.v2.transfers) {
       if (!['queued', 'running', 'verifying'].includes(transfer.status)) continue;
       transfer.status = 'pending';
-      transfer.error = 'Fleet Core restarted; resume the transfer from its verified offset.';
+      transfer.error = 'Orchestra Core restarted; resume the transfer from its verified offset.';
       transfer.completedAt = undefined;
       reconciled = true;
     }
@@ -348,7 +348,7 @@ export class FleetStore {
       team.completedAt = now;
       for (const task of team.tasks.filter((item) => ['pending', 'queued', 'running'].includes(item.state))) {
         task.state = task.state === 'running' ? 'failed' : 'cancelled';
-        task.error = task.state === 'failed' ? 'Fleet Core restarted while this agent task was active.' : task.error;
+        task.error = task.state === 'failed' ? 'Orchestra Core restarted while this agent task was active.' : task.error;
         task.completedAt = now;
       }
       reconciled = true;
@@ -362,14 +362,14 @@ export class FleetStore {
     for (const backup of state.v2.backups) {
       if (!['queued', 'running'].includes(backup.status)) continue;
       backup.status = 'failed';
-      backup.error = 'Fleet Core restarted while this backup was active.';
+      backup.error = 'Orchestra Core restarted while this backup was active.';
       backup.completedAt = now;
       reconciled = true;
     }
     for (const diagnostic of state.v2.diagnostics) {
       if (!['queued', 'running'].includes(diagnostic.state)) continue;
       diagnostic.state = 'failed';
-      diagnostic.checks.push({ name: 'Core restart', status: 'fail', detail: 'Fleet Core restarted before this diagnostic completed.', remediation: 'Run the diagnostic again.' });
+      diagnostic.checks.push({ name: 'Core restart', status: 'fail', detail: 'Orchestra Core restarted before this diagnostic completed.', remediation: 'Run the diagnostic again.' });
       diagnostic.completedAt = now;
       reconciled = true;
     }

@@ -39,7 +39,7 @@ export function parseArguments(args: string[]): { help: boolean; core: FleetCore
   return { help: false, core };
 }
 
-const HELP = `Fleet Canvas Core
+const HELP = `Orchestra Core
 
 Usage: fleet-core [options]
 
@@ -49,7 +49,7 @@ Options:
   --token <token>    Shared Fleet token (prefer FLEET_TOKEN)
   --data-dir <path>  Persistent control-plane state directory
   --allow-unauthenticated-loopback  Development only; bypass auth for local requests
-  --readme-demo       Seed a synthetic documentation-only Fleet System transcript
+  --readme-demo       Seed a synthetic documentation-only Orchestra System transcript
   -h, --help         Show this help
 `;
 

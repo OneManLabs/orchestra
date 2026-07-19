@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="apps/desktop/public/fleet-icon.svg" width="104" alt="Fleet Canvas logo">
+<img src="apps/desktop/public/fleet-icon.svg" width="104" alt="Orchestra logo">
 
-# Fleet Canvas
+# Orchestra
 
 ### One private command center for every computer you own.
 
@@ -13,23 +13,23 @@ Run jobs where the right hardware lives, open remote Codex sessions on any enrol
 </div>
 
 > [!IMPORTANT]
-> Fleet Canvas is **source-available, noncommercial software**. Evaluation, education, personal projects, and qualifying nonprofit uses are permitted under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). Any business use requires prior written permission and separately agreed terms from [One Man Labs](https://www.onemanlabs.org/).
+> Orchestra is **source-available, noncommercial software**. Evaluation, education, personal projects, and qualifying nonprofit uses are permitted under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). Any business use requires prior written permission and separately agreed terms from [One Man Labs](https://www.onemanlabs.org/).
 
-## Why Fleet Canvas?
+## Why Orchestra?
 
-Most people with more than one serious computer eventually build the same collection of scripts, dashboards, SSH aliases, shared folders, and half-remembered commands. Fleet Canvas turns that collection into an operating layer.
+Most people with more than one serious computer eventually build the same collection of scripts, dashboards, SSH aliases, shared folders, and half-remembered commands. Orchestra turns that collection into an operating layer.
 
 From one responsive interface you can see what is online, choose where work should run, launch a real Codex session in the correct workspace, approve sensitive actions, transfer artifacts, inspect telemetry, and control device power. The Core coordinates the fleet, while each Agent keeps execution, credentials, files, and compute on its own machine.
 
-Fleet Canvas is designed for homelabs, independent developers, researchers, creators, and small private compute fleets that span Macs, Windows or Linux workstations, GPU boxes, NAS systems, and Raspberry Pi gateways.
+Orchestra is designed for homelabs, independent developers, researchers, creators, and small private compute fleets that span Macs, Windows or Linux workstations, GPU boxes, NAS systems, and Raspberry Pi gateways.
 
 ## Product tour
 
 > Screenshots are captured from the isolated synthetic simulator—not from a real fleet. The privacy-safe capture workflow is documented in [`docs/readme-screenshots.md`](docs/readme-screenshots.md).
 
-### Live fleet canvas
+### Live Orchestra canvas
 
-![Fleet canvas showing eight synthetic devices and live activity](docs/images/fleet-canvas.png)
+![Orchestra canvas showing eight synthetic devices and live activity](docs/images/fleet-canvas.png)
 
 ### Conversational fleet control
 
@@ -45,7 +45,7 @@ Live topology, health, availability, hardware, storage, network, power state, ma
 
 ### Put work on the right machine
 
-Fleet Canvas scores compatible devices using availability, load, queue depth, locality, role, maintenance state, cost, power, and temperature. Jobs and pipeline steps stay observable from submission through completion.
+Orchestra scores compatible devices using availability, load, queue depth, locality, role, maintenance state, cost, power, and temperature. Jobs and pipeline steps stay observable from submission through completion.
 
 ### Take Codex to the compute and the files
 
@@ -59,7 +59,7 @@ Scoped API tokens, device-bound credentials, encrypted secrets, confined file ro
 
 | Area | Included |
 | --- | --- |
-| Fleet control | Live topology, groups and sites, hardware discovery, trust and maintenance state, bulk selection |
+| Orchestra control | Live topology, groups and sites, hardware discovery, trust and maintenance state, bulk selection |
 | Codex | Remote structured sessions, approvals, tools, skills, MCP, plugins, goals, reviews, session mobility |
 | Jobs and pipelines | Scheduling, DAG execution, conditional edges, retries, timeouts, approvals, cancellation |
 | Files and artifacts | Confined browsing, resumable transfer, integrity checks, lineage, NAS-backed storage |
@@ -74,7 +74,7 @@ Scoped API tokens, device-bound credentials, encrypted secrets, confined file ro
 
 ```mermaid
 flowchart LR
-    C[Desktop / PWA / iOS] -->|HTTPS + scoped token| CORE[Fleet Core]
+    C[Desktop / PWA / iOS] -->|HTTPS + scoped token| CORE[Orchestra Core]
     CORE <-->|authenticated WebSocket| A1[Agent: workstation]
     CORE <-->|authenticated WebSocket| A2[Agent: GPU node]
     CORE <-->|authenticated WebSocket| A3[Agent: NAS or gateway]
@@ -91,7 +91,7 @@ flowchart LR
 - **Core** owns fleet identity, live state, scheduling, policy, approvals, audit, enrollment, and routing.
 - **Agents** own device-local execution, files, credentials, previews, telemetry, and power integrations.
 - **Clients** present the Canvas and call Core using a recovery credential or, preferably, a least-privilege scoped token.
-- **Tailscale** provides private network reachability. Fleet Canvas still performs its own authentication and authorization.
+- **Tailscale** provides private network reachability. Orchestra still performs its own authentication and authorization.
 
 See [Architecture](docs/architecture.md) for trust boundaries and protocol details.
 
@@ -135,7 +135,7 @@ FLEET_TOKEN='<development-recovery-token>' npm run dev:simulator -- --count 8 --
 
 The simulator is explicitly development-only and cannot perform real file, power, desktop, or Codex operations.
 
-For an isolated documentation environment that cannot touch normal Fleet state, run:
+For an isolated documentation environment that cannot touch normal Orchestra state, run:
 
 ```bash
 npm run demo:readme
@@ -145,15 +145,15 @@ This allocates temporary state and unused loopback ports, starts only a demo Cor
 
 ## Recommended Tailscale deployment
 
-Fleet Canvas should remain on a private tailnet. Do not port-forward Core, and do not expose it with Tailscale Funnel.
+Orchestra should remain on a private tailnet. Do not port-forward Core, and do not expose it with Tailscale Funnel.
 
 ### 1. Join the tailnet
 
-Install [Tailscale](https://tailscale.com/docs/install) on the Core host, every Agent host, and every client device that needs access. Confirm the devices can reach one another before configuring Fleet Canvas.
+Install [Tailscale](https://tailscale.com/docs/install) on the Core host, every Agent host, and every client device that needs access. Confirm the devices can reach one another before configuring Orchestra.
 
 For new tailnets, use Tailscale [grants](https://tailscale.com/docs/features/access-control/grants) to restrict who can reach the Core and Agent services. Tailscale recommends grants for new policies; an otherwise unmodified tailnet may begin with broad allow-all connectivity.
 
-### 2. Build Fleet Canvas
+### 2. Build Orchestra
 
 ```bash
 npm install
@@ -189,7 +189,7 @@ tailscale serve --bg 4780
 tailscale serve status
 ```
 
-[Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) makes the loopback service available over HTTPS **inside the tailnet**. Verify the reported URL matches `FLEET_PUBLIC_URL`. Serve and Funnel are different: Funnel is public and is not recommended for Fleet Core.
+[Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) makes the loopback service available over HTTPS **inside the tailnet**. Verify the reported URL matches `FLEET_PUBLIC_URL`. Serve and Funnel are different: Funnel is public and is not recommended for Orchestra Core.
 
 If you choose to bind Core directly to a Tailscale IP instead, use application TLS whenever traffic leaves loopback and restrict port `4780` with tailnet grants.
 
@@ -221,7 +221,7 @@ The Agent exchanges that token for a device-bound credential and stores it in it
 
 Point Desktop or iOS at the Core HTTPS URL. Use a narrowly scoped API token for routine access and reserve the recovery token for break-glass administration.
 
-For a separately hosted PWA, follow [Web client deployment](docs/web-client.md). The web build never embeds a Fleet credential; browser tokens remain in memory and are discarded on refresh.
+For a separately hosted PWA, follow [Web client deployment](docs/web-client.md). The web build never embeds an Orchestra credential; browser tokens remain in memory and are discarded on refresh.
 
 ## Native iOS app
 
@@ -254,18 +254,18 @@ xcodebuild \
 
 ### Connect iOS securely
 
-Enter the private HTTPS Core URL or scan a Fleet enrollment QR code. Use a least-privilege scoped API token rather than the recovery token. Credentials are stored with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`; Release builds require HTTPS, while Debug builds may use private Tailscale-range HTTP addresses for development.
+Enter the private HTTPS Core URL or scan an Orchestra enrollment QR code. Use a least-privilege scoped API token rather than the recovery token. Credentials are stored with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`; Release builds require HTTPS, while Debug builds may use private Tailscale-range HTTP addresses for development.
 
 Live UI tests read `FLEET_TEST_CORE_URL` and `FLEET_TEST_TOKEN` only from the test-process environment. When those variables are absent, live tests skip instead of falling back to embedded credentials or sample fleet data. See the complete [iOS build, enrollment, and provisioning guide](apps/ios/README.md).
 
 ## Codex Micro hardware integration
 
-The macOS desktop app includes an optional integration for the [Work Louder Codex Micro](https://worklouder.cc/). It turns the control surface into a tactile companion for Fleet-hosted Codex sessions without moving session credentials or execution onto the keyboard.
+The macOS desktop app includes an optional integration for the [Work Louder Codex Micro](https://worklouder.cc/). It turns the control surface into a tactile companion for Orchestra-hosted Codex sessions without moving session credentials or execution onto the keyboard.
 
 Six hardware slots can follow recent or priority sessions, stay pinned to specific sessions, or use custom mappings. Per-key lighting makes state visible at a glance: idle, working, unread, awaiting approval, error, and voice transcription each have a distinct color. Available actions include:
 
 - Select, fork, interrupt, or navigate Codex conversations
-- Respond to an existing approval request through Fleet's normal authorization path
+- Respond to an existing approval request through Orchestra's normal authorization path
 - Toggle Fast and Plan modes, change model/reasoning settings, and open review or terminal controls
 - Start push-to-talk, send a composed message, or attach files and photos
 - Run commit, push, pull-request, plugin, and configurable shortcut actions
@@ -273,14 +273,14 @@ Six hardware slots can follow recent or priority sessions, stay pinned to specif
 
 ### Enable Codex Micro on macOS
 
-1. Connect the Codex Micro and open **Settings → Codex Micro** in the Fleet desktop app.
+1. Connect the Codex Micro and open **Settings → Codex Micro** in the Orchestra desktop app.
 2. Enable the integration and choose slot, dial, joystick, lighting, and voice mappings.
-3. Grant macOS **Input Monitoring** permission so Fleet can receive hardware events.
+3. Grant macOS **Input Monitoring** permission so Orchestra can receive hardware events.
 4. If using push-to-talk, also grant **Microphone** and **Speech Recognition** permission. Voice capture uses the system-selected microphone and Apple Speech Recognition; audio is not sent to OpenAI.
 
-The native voice helper is built as part of the desktop application workflow. Preferences and diagnostics are stored in the app's private user-data directory with owner-only permissions. Hardware approval buttons only answer approval prompts already issued by Codex; they do not bypass Fleet Core policy, Agent safeguards, or operating-system authorization.
+The native voice helper is built as part of the desktop application workflow. Preferences and diagnostics are stored in the app's private user-data directory with owner-only permissions. Hardware approval buttons only answer approval prompts already issued by Codex; they do not bypass Orchestra Core policy, Agent safeguards, or operating-system authorization.
 
-Codex Micro support is currently macOS-only. If the vendor interface is unavailable or no device is detected, Fleet reports that state and continues normally with keyboard, mouse, web, and iOS controls.
+Codex Micro support is currently macOS-only. If the vendor interface is unavailable or no device is detected, Orchestra reports that state and continues normally with keyboard, mouse, web, and iOS controls.
 
 ## Other deployment paths
 
@@ -296,7 +296,7 @@ Codex Micro support is currently macOS-only. If the vendor interface is unavaila
 
 ## Security model
 
-Fleet Canvas controls real computers. Treat Core as sensitive infrastructure and follow these defaults:
+Orchestra controls real computers. Treat Core as sensitive infrastructure and follow these defaults:
 
 - Keep Core behind Tailscale or an equivalent private network.
 - Never expose Core using Funnel or ordinary router port forwarding.
@@ -397,7 +397,11 @@ docs                 Architecture, security, API, operations, development notes
 
 ## Project status
 
-Fleet Canvas V2 is active development software. It already provides a broad working control plane, but it is not a certified high-availability or compliance platform. Core currently uses single-active-instance JSON persistence, distribution packages are unsigned development candidates, and some external integrations remain adapter or metadata boundaries. Read [Integration boundaries](docs/integration-boundaries.md) before depending on a feature in production.
+Orchestra V2 is active development software. It already provides a broad working control plane, but it is not a certified high-availability or compliance platform. Core currently uses single-active-instance JSON persistence, distribution packages are unsigned development candidates, and some external integrations remain adapter or metadata boundaries. Read [Integration boundaries](docs/integration-boundaries.md) before depending on a feature in production.
+
+### Internal compatibility names
+
+The product and all operator-facing interfaces are branded **Orchestra**. Existing internal package scopes, environment variables, bundle identifiers, service identifiers, API field names, and legacy data directories retain names such as `@fleet/*`, `FLEET_*`, `com.fleetcanvas.*`, and `Fleet Canvas`. Changing those identifiers would break upgrades and existing deployments; they are compatibility contracts, not the public product name.
 
 ## Contributing
 
@@ -409,6 +413,6 @@ Report suspected vulnerabilities privately according to [SECURITY.md](SECURITY.m
 
 Copyright 2026 One Man Labs.
 
-Fleet Canvas is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE.md); it is not OSI-defined Open Source. Copies and modified versions must preserve the repository's Required Notice and attribution. Any business use requires a prior written agreement with One Man Labs.
+Orchestra is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE.md); it is not OSI-defined Open Source. Copies and modified versions must preserve the repository's Required Notice and attribution. Any business use requires a prior written agreement with One Man Labs.
 
 See [Commercial licensing](COMMERCIAL-LICENSE.md) and [Notices](NOTICE.md).

@@ -1,13 +1,13 @@
-# Fleet Canvas for iPhone
+# Orchestra for iPhone
 
-Fleet Canvas for iPhone is a native SwiftUI control surface for the Fleet Core
+Orchestra for iPhone is a native SwiftUI control surface for Orchestra Core
 API. It uses the same dark, cyan-accented visual language as the Electron app,
 with iPhone-native navigation, sheets, touch targets, Dynamic Type, Keychain
 storage, Face ID/passcode confirmation, and QR enrollment.
 
 The app never ships with mock fleet data or embedded credentials. Device,
 job, Codex, approval, alert, and telemetry views are populated from the
-configured live Fleet Core.
+configured live Orchestra Core.
 
 ## Included controls
 
@@ -17,7 +17,7 @@ configured live Fleet Core.
 - Job creation, output, retry, and cancellation
 - Codex session list, chat, live permission changes, approvals, interrupt, stop, and resume
 - Alerts, notifications, and approval inbox
-- QR or manual Fleet Core enrollment
+- QR or manual Orchestra Core enrollment
 - Authenticated WebSocket updates with foreground reconnection
 - Keychain-backed scoped API credentials
 
@@ -44,7 +44,7 @@ The generated Xcode project is checked in for convenience, while
 
 ## Connect securely
 
-Use a least-privilege Fleet API token with:
+Use a least-privilege Orchestra API token with:
 
 ```text
 fleet:read
@@ -52,12 +52,12 @@ fleet:write
 power:write
 ```
 
-Enter the private Tailscale address for Fleet Core, or scan a Fleet pairing QR
+Enter the private Tailscale address for Orchestra Core, or scan an Orchestra pairing QR
 code from inside the app. Credentials are stored with
 `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`.
 
 Debug builds permit private `http://100.x` Core addresses for local
-development. Release builds require HTTPS. Do not expose Fleet Core, NAS
+development. Release builds require HTTPS. Do not expose Orchestra Core, NAS
 administration, or device agents to the public internet.
 
 ## Live UI verification

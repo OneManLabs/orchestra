@@ -118,7 +118,7 @@ export class CodexAppServerSession {
     });
 
     await this.request('initialize', {
-      clientInfo: { name: 'fleet_canvas', title: 'Fleet Canvas', version: AGENT_VERSION },
+      clientInfo: { name: 'fleet_canvas', title: 'Orchestra', version: AGENT_VERSION },
       capabilities: { experimentalApi: true },
     });
     this.write({ method: 'initialized' });

@@ -76,12 +76,12 @@ function parseInteger(value: string, flag: string): number {
   return number;
 }
 
-const HELP = `Fleet Canvas Agent
+const HELP = `Orchestra Agent
 
 Usage: fleet-agent [options]
 
 Options:
-  --core, --core-url <url>   Fleet Core URL (default: http://127.0.0.1:4780)
+  --core, --core-url <url>   Orchestra Core URL (default: http://127.0.0.1:4780)
   --token <token>            Shared Fleet token (prefer FLEET_TOKEN)
   --enrollment-token <token> One-time enrollment token for first install
   --credential-file <path>  Persisted per-device credential path

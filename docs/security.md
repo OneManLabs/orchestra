@@ -1,13 +1,13 @@
-# Fleet Canvas V2 security model
+# Orchestra V2 security model
 
-Fleet Canvas coordinates shells, Codex, files, power state, and deployments, so compromise of Core or an Agent is high impact. The default design combines private networking, application credentials, narrow commands, workspace confinement, explicit approval, encryption, and tamper-evident records.
+Orchestra coordinates shells, Codex, files, power state, and deployments, so compromise of Core or an Agent is high impact. The default design combines private networking, application credentials, narrow commands, workspace confinement, explicit approval, encryption, and tamper-evident records.
 
 ## Trust boundaries
 
 - **Desktop renderer:** untrusted UI. Electron context isolation and sandboxing stay enabled; privileged actions pass through a narrow validated bridge.
 - **Core:** trusted policy decision and coordination point. Keep it patched, backed up, and reachable only from approved identities.
 - **Agent:** trusted executor for one device. It accepts typed commands from Core over an outbound connection and confines file operations to configured roots.
-- **Codex/job process:** constrained by its selected sandbox, workspace, approval policy, and injected secret scope. Outbound network control for shell/Codex processes depends on Codex and host/container policy; Fleet's Core HTTP allowlist does not sandbox arbitrary child-process networking.
+- **Codex/job process:** constrained by its selected sandbox, workspace, approval policy, and injected secret scope. Outbound network control for shell/Codex processes depends on Codex and host/container policy; Orchestra's Core HTTP allowlist does not sandbox arbitrary child-process networking.
 - **Plugin:** registration metadata only in this release. Core does not execute plugin entrypoints; a future host must treat every plugin as untrusted even when its manifest is signed.
 - **NAS/artifact provider:** separate data plane. Provider credentials are secret references, not fields returned in fleet snapshots.
 
@@ -54,18 +54,18 @@ Secrets, bearer tokens, raw file chunks, and private Codex authentication data m
 
 ## File and artifact safety
 
-Agent file commands canonicalize the requested path and require it to remain beneath an allowed project root. Transfers use serialized bounded chunks, safe numeric offsets, complete-write confirmation, retry limits, streamed SHA-256 verification, exact-size checks, and final-path/link confinement. The transfer API rejects advertised compression, encryption, and bandwidth limiting because those streaming controls are not implemented. Classification labels participate in policy evaluation when Core can resolve the artifact/device context, but Fleet does not inspect arbitrary file contents or provide a DLP engine. NAS snapshots do not replace integrity checks or an off-site backup.
+Agent file commands canonicalize the requested path and require it to remain beneath an allowed project root. Transfers use serialized bounded chunks, safe numeric offsets, complete-write confirmation, retry limits, streamed SHA-256 verification, exact-size checks, and final-path/link confinement. The transfer API rejects advertised compression, encryption, and bandwidth limiting because those streaming controls are not implemented. Classification labels participate in policy evaluation when Core can resolve the artifact/device context, but Orchestra does not inspect arbitrary file contents or provide a DLP engine. NAS snapshots do not replace integrity checks or an off-site backup.
 
-Cross-device Codex continuity transfers only a bounded Codex thread rollout through authenticated Agent connections. The destination enforces ordered chunks, exact size, SHA-256 verification, private staging permissions, thread-ID metadata validation, and destination project-path mapping. Source exports and failed destination stages are discarded; a successful destination keeps the private rollout needed to resume that thread. Fleet does not copy the source device's Codex credential store. Because a rollout contains conversation and tool history, its destination must be trusted for the same project and data classification.
+Cross-device Codex continuity transfers only a bounded Codex thread rollout through authenticated Agent connections. The destination enforces ordered chunks, exact size, SHA-256 verification, private staging permissions, thread-ID metadata validation, and destination project-path mapping. Source exports and failed destination stages are discarded; a successful destination keeps the private rollout needed to resume that thread. Orchestra does not copy the source device's Codex credential store. Because a rollout contains conversation and tool history, its destination must be trusted for the same project and data classification.
 
 ## MCP safety
 
-Fleet has an embedded Core MCP endpoint and a standalone gateway. Both use bearer authentication and typed tools. Core applies action-level policy to both paths and writes mutation decisions to the hash-chained audit log; the standalone gateway additionally applies its local read-only/tool allowlist. Gateway connection/read logs belong in the supervising service or reverse proxy. A `require-approval` decision denies an MCP mutation until an operator completes a separate approved workflow—it does not silently approve it. `fleet_request_approval` sends an informational warning notification and does not grant capability.
+Orchestra has an embedded Core MCP endpoint and a standalone gateway. Both use bearer authentication and typed tools. Core applies action-level policy to both paths and writes mutation decisions to the hash-chained audit log; the standalone gateway additionally applies its local read-only/tool allowlist. Gateway connection/read logs belong in the supervising service or reverse proxy. A `require-approval` decision denies an MCP mutation until an operator completes a separate approved workflow—it does not silently approve it. `fleet_request_approval` sends an informational warning notification and does not grant capability.
 
 ## Plugins
 
-Plugins declare capabilities, network domains, filesystem roots, secret names, and Fleet scopes in a strict manifest. Core currently stores plugin registrations but does not load their entrypoints. A future executable plugin host must require signatures from approved publishers and isolate plugins in processes or containers with CPU/memory/time limits; never `import()` arbitrary marketplace code into Core's privileged process.
+Plugins declare capabilities, network domains, filesystem roots, secret names, and Orchestra scopes in a strict manifest. Core currently stores plugin registrations but does not load their entrypoints. A future executable plugin host must require signatures from approved publishers and isolate plugins in processes or containers with CPU/memory/time limits; never `import()` arbitrary marketplace code into Core's privileged process.
 
 ## Compliance statement
 
-The controls in this repository are implementation foundations, not a SOC 2, ISO 27001, HIPAA, FedRAMP, CMMC, or ITAR certification. Certification requires organizational procedures, evidence, tested identity and key-management integrations, infrastructure configuration, independent assessment, and ongoing operation. Fleet supplies policy, audit, classification metadata, backup/export functions, and air-gap deployment guidance; it does not claim a DLP system, enforced legal retention, data-residency service, or completed accreditation.
+The controls in this repository are implementation foundations, not a SOC 2, ISO 27001, HIPAA, FedRAMP, CMMC, or ITAR certification. Certification requires organizational procedures, evidence, tested identity and key-management integrations, infrastructure configuration, independent assessment, and ongoing operation. Orchestra supplies policy, audit, classification metadata, backup/export functions, and air-gap deployment guidance; it does not claim a DLP system, enforced legal retention, data-residency service, or completed accreditation.

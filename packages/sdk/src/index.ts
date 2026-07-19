@@ -39,7 +39,7 @@ export class FleetApiError extends Error {
   }
 }
 
-/** Typed Fleet Canvas V2 REST client for browser, Node, and service-account use. */
+/** Typed Orchestra V2 REST client for browser, Node, and service-account use. */
 export class FleetClient {
   readonly baseUrl: string;
   private readonly token?: string;
@@ -192,7 +192,7 @@ export class FleetClient {
     let payload: unknown = raw;
     if (raw && (contentType.includes('application/json') || contentType.includes('+json'))) {
       try { payload = JSON.parse(raw); }
-      catch { throw new FleetApiError(response.status, 'Fleet Core returned invalid JSON.', raw.slice(0, 4_096)); }
+      catch { throw new FleetApiError(response.status, 'Orchestra Core returned invalid JSON.', raw.slice(0, 4_096)); }
     } else if (!raw) payload = undefined;
     if (!response.ok) {
       const message = payload && typeof payload === 'object' && 'error' in payload
@@ -226,8 +226,8 @@ function safePath(value: string): string {
 function validateBaseUrl(value: string): void {
   let url: URL;
   try { url = new URL(value); }
-  catch { throw new Error('Fleet Core base URL must be an absolute HTTP(S) URL.'); }
-  if (!['http:', 'https:'].includes(url.protocol) || !url.hostname) throw new Error('Fleet Core base URL must be an absolute HTTP(S) URL.');
-  if (url.username || url.password) throw new Error('Fleet Core base URL must not contain credentials.');
-  if (url.search || url.hash) throw new Error('Fleet Core base URL must not contain a query or fragment.');
+  catch { throw new Error('Orchestra Core base URL must be an absolute HTTP(S) URL.'); }
+  if (!['http:', 'https:'].includes(url.protocol) || !url.hostname) throw new Error('Orchestra Core base URL must be an absolute HTTP(S) URL.');
+  if (url.username || url.password) throw new Error('Orchestra Core base URL must not contain credentials.');
+  if (url.search || url.hash) throw new Error('Orchestra Core base URL must not contain a query or fragment.');
 }
