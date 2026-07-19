@@ -7,3 +7,5 @@ Orchestra is source-available software, not Open Source as defined by the Open S
 Copies and modified versions must preserve the Required Notice above and provide recipients with the [PolyForm Noncommercial License 1.0.0](LICENSE.md) or its canonical URL.
 
 Orchestra includes third-party dependencies under their respective licenses. Those licenses apply to the third-party components and do not change the license for Orchestra itself.
+
+The optional CodexBar interoperability adapter consumes the public JSON output of [CodexBar](https://github.com/steipete/CodexBar), an MIT-licensed project by Peter Steinberger. Orchestra's menu-bar design is an original implementation visually inspired by CodexBar; no CodexBar source code is bundled.

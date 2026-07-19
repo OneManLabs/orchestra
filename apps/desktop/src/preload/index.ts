@@ -32,6 +32,7 @@ export interface MenuBarDesktopState {
   quietMode: 'normal' | 'quiet';
   launchAtLogin: boolean;
   exitNode?: ExitNodeStatus;
+  codexBar: import('../main/codexbar.js').CodexBarUsage;
   lastUpdatedAt?: string;
   error?: string;
 }

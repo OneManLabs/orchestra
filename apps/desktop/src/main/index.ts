@@ -44,6 +44,7 @@ import { resolveFleetCoreApiUrl } from './core-api-url.js';
 import { createTrayIconPngRepresentations } from './tray-icon-png.js';
 import { CodexMicroController, normalizeCodexMicroPreferences } from './codex-micro.js';
 import { NativeVoiceCapture } from './native-voice.js';
+import { codexBarCliCandidates, parseCodexBarUsage, type CodexBarUsage } from './codexbar.js';
 
 if (app.isPackaged) {
   app.setPath('userData', join(app.getPath('appData'), 'Fleet Canvas'));
@@ -84,6 +85,10 @@ let menuBarPulseTimer: ReturnType<typeof setTimeout> | null = null;
 let lastMenuBarPulseSignature: string | undefined;
 let cachedExitNodeStatus: ExitNodeStatus | undefined;
 let tailscaleCliPath: string | null | undefined;
+let codexBarCliPath: string | undefined;
+let cachedCodexBarUsage: CodexBarUsage = { available: false };
+let codexBarUpdatedAt = 0;
+let codexBarPollInFlight: Promise<void> | null = null;
 let quietMode: QuietMode = 'normal';
 let codexMicroPreferences: CodexMicroPreferences = defaultCodexMicroPreferences();
 let codexMicroReadAt: Record<string, number> | undefined;
@@ -111,6 +116,7 @@ interface MenuBarDesktopState {
   quietMode: QuietMode;
   launchAtLogin: boolean;
   exitNode?: ExitNodeStatus;
+  codexBar: CodexBarUsage;
   lastUpdatedAt?: string;
   error?: string;
 }
@@ -254,6 +260,7 @@ function desktopState(): MenuBarDesktopState {
     connected: menuBarConnected,
     quietMode,
     launchAtLogin: app.getLoginItemSettings(loginItemIdentity()).openAtLogin,
+    codexBar: cachedCodexBarUsage,
     ...(cachedExitNodeStatus ? { exitNode: cachedExitNodeStatus } : {}),
     ...(menuBarLastUpdatedAt ? { lastUpdatedAt: menuBarLastUpdatedAt } : {}),
     ...(menuBarError ? { error: menuBarError } : {})
@@ -358,6 +365,7 @@ async function pollMenuBarSnapshot(): Promise<MenuBarDesktopState> {
       menuBarError = undefined;
       menuBarLastUpdatedAt = new Date().toISOString();
       renderTray(pulse);
+      void refreshCodexBarUsage();
     } catch (error) {
       menuBarConnected = false;
       menuBarError = error instanceof Error ? error.message : 'Orchestra Core is unavailable';
@@ -404,6 +412,38 @@ async function executeFile(path: string, args: string[]): Promise<string> {
       else resolve(stdout);
     });
   });
+}
+
+async function findCodexBarCli(): Promise<string | null> {
+  if (codexBarCliPath) return codexBarCliPath;
+  for (const candidate of codexBarCliCandidates(homedir(), process.env.CODEXBAR_CLI)) {
+    try {
+      await access(candidate, fsConstants.X_OK);
+      codexBarCliPath = candidate;
+      return candidate;
+    } catch { /* CodexBar is an optional local integration. */ }
+  }
+  return null;
+}
+
+async function refreshCodexBarUsage(force = false): Promise<void> {
+  if (!force && Date.now() - codexBarUpdatedAt < 60_000) return;
+  if (codexBarPollInFlight) return codexBarPollInFlight;
+  codexBarPollInFlight = (async () => {
+    const cli = await findCodexBarCli();
+    if (!cli) {
+      cachedCodexBarUsage = { available: false };
+    } else {
+      try {
+        cachedCodexBarUsage = parseCodexBarUsage(await executeFile(cli, ['usage', '--provider', 'codex', '--format', 'json']));
+      } catch (error) {
+        cachedCodexBarUsage = { available: true, error: error instanceof Error ? error.message : 'CodexBar usage failed' };
+      }
+    }
+    codexBarUpdatedAt = Date.now();
+    emitMenuBarState();
+  })();
+  try { await codexBarPollInFlight; } finally { codexBarPollInFlight = null; }
 }
 
 async function refreshExitNodeStatus(): Promise<ExitNodeStatus> {

@@ -288,6 +288,12 @@ The native voice helper is built as part of the desktop application workflow. Pr
 
 Codex Micro support is currently macOS-only. If the vendor interface is unavailable or no device is detected, Orchestra reports that state and continues normally with keyboard, mouse, web, and iOS controls.
 
+## macOS menu bar and CodexBar
+
+Orchestra includes a compact macOS menu-bar command surface for fleet health, devices, active jobs, approvals, alerts, quick Codex sessions, terminals, power controls, and Tailscale exit-node routing. Its adaptive light and dark appearance follows native macOS menu conventions and takes visual inspiration from the clarity of [CodexBar](https://github.com/steipete/CodexBar).
+
+When the optional `codexbar` CLI is installed, Orchestra reads its documented JSON output to display Codex session and weekly usage meters. The adapter is read-only, invokes a fixed absolute executable without a shell, discards account identity fields, and never reads CodexBar cookies, tokens, or configuration itself. Orchestra continues normally when CodexBar is absent or unavailable.
+
 ## Other deployment paths
 
 | Target | Start here |

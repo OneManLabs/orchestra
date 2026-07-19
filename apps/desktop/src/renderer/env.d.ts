@@ -31,6 +31,16 @@ interface FleetMenuBarDesktopState {
   quietMode: 'normal' | 'quiet';
   launchAtLogin: boolean;
   exitNode?: FleetExitNodeStatus;
+  codexBar: {
+    available: boolean;
+    version?: string;
+    source?: string;
+    updatedAt?: string;
+    primary?: { usedPercent: number; resetsAt?: string };
+    secondary?: { usedPercent: number; resetsAt?: string };
+    creditsRemaining?: number;
+    error?: string;
+  };
   lastUpdatedAt?: string;
   error?: string;
 }

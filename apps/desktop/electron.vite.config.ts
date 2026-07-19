@@ -21,7 +21,7 @@ export default defineConfig({
   main: {
     // Codex Micro preferences and layout constants are runtime values from the
     // source-only shared workspace package, so they must travel with the app.
-    plugins: [externalizeDepsPlugin({ exclude: ['@fleet/shared', 'ws'] })],
+    plugins: [externalizeDepsPlugin({ exclude: ['@fleet/shared'] })],
     // LaunchServices starts macOS apps with `/` as cwd. A CommonJS main entry
     // lets Electron resolve its built-in module without the ESM loader relying
     // on the launch-time working directory.

@@ -25,6 +25,12 @@ Left-clicking the status item opens a second `Orchestra Canvas.app` process with
 full Orchestra popover. Right-clicking offers **Open Orchestra Canvas** and
 **Quit Menu Icon**.
 
+The full Orchestra popover uses an adaptive native macOS visual treatment. If
+the optional [CodexBar](https://github.com/steipete/CodexBar) CLI is installed,
+the desktop app also displays its read-only Codex usage snapshot. Orchestra
+parses only quota windows, reset times, source/version metadata, and credits;
+account identity and credential material are not retained.
+
 ## Test
 
 ```bash

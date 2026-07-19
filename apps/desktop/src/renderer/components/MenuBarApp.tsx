@@ -66,12 +66,14 @@ import './MenuBarApp.css';
 
 type MainTarget = { page?: string; deviceId?: string; tab?: string; jobId?: string; sessionId?: string; alertId?: string; entityId?: string };
 type ExitNodeState = { available: boolean; connected: boolean; selectedId?: string; selectedName?: string; allowLan: boolean; backendState?: string; error?: string; options?: Array<{ id: string; name: string; online: boolean; addresses: string[] }> };
+type CodexBarUsage = { available: boolean; version?: string; source?: string; updatedAt?: string; primary?: { usedPercent: number; resetsAt?: string }; secondary?: { usedPercent: number; resetsAt?: string }; creditsRemaining?: number; error?: string };
 type MenuBarDesktopState = {
   snapshot: MenuBarSnapshot | null;
   connected: boolean;
   quietMode: 'normal' | 'quiet';
   launchAtLogin: boolean;
   exitNode?: ExitNodeState;
+  codexBar?: CodexBarUsage;
   lastUpdatedAt?: string;
   error?: string;
 };
@@ -104,6 +106,7 @@ export function MenuBarApp() {
   const [quietMode, setQuietMode] = useState<'normal' | 'quiet'>('normal');
   const [launchAtLogin, setLaunchAtLogin] = useState(false);
   const [exitNode, setExitNode] = useState<ExitNodeState>();
+  const [codexBar, setCodexBar] = useState<CodexBarUsage>({ available: false });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string>();
@@ -122,6 +125,7 @@ export function MenuBarApp() {
     setQuietMode(state.quietMode);
     setLaunchAtLogin(state.launchAtLogin);
     setExitNode(state.exitNode);
+    setCodexBar(state.codexBar ?? { available: false });
     setError(state.error);
     if (state.snapshot) setSnapshot(parseMenuBarSnapshot(state.snapshot));
     setLoading(false);
@@ -278,6 +282,8 @@ export function MenuBarApp() {
 
         <QuickStrip codex={() => setPanel('codex')} wake={() => setPanel('wake')} terminal={() => setPanel('terminal')} canvas={() => void openMain({ page: 'canvas' })} />
 
+        {codexBar.available && <CodexBarCard usage={codexBar} />}
+
         <MenuSection title="Priority jobs" count={snapshot.jobs.length} action={snapshot.jobs.length ? <button onClick={() => void openMain({ page: 'jobs' })}>View all</button> : undefined}>
           {snapshot.jobs.length ? <div className="mb-list">{snapshot.jobs.map((job) => <JobRow key={job.id} job={job} pending={pendingAction === `job:${job.id}`} view={() => void openMain({ page: 'jobs', jobId: job.id })} cancel={() => void act(`job:${job.id}`, () => api.cancelJob(job.id), `${job.name} cancelled`)} />)}</div> : <InlineEmpty icon={<Check size={15} />} title="No active work" detail="Your fleet is ready for its next job." />}
         </MenuSection>
@@ -325,6 +331,22 @@ function ConnectionError({ message, retry, refreshing, open }: { message: string
 
 function QuickStrip({ codex, wake, terminal, canvas }: { codex(): void; wake(): void; terminal(): void; canvas(): void }) {
   return <section className="mb-quick-strip" aria-label="Quick actions"><button onClick={codex}><span><Sparkles size={15} /></span><strong>New Codex</strong></button><button onClick={wake}><span><Power size={15} /></span><strong>Wake</strong></button><button onClick={terminal}><span><SquareTerminal size={15} /></span><strong>Terminal</strong></button><button onClick={canvas}><span><Gauge size={15} /></span><strong>Canvas</strong></button></section>;
+}
+
+function CodexBarCard({ usage }: { usage: CodexBarUsage }) {
+  return <section className="mb-codexbar-card" aria-label="Codex usage from CodexBar">
+    <header><span className="mb-codexbar-mark"><Bot size={15} /></span><div><strong>Codex</strong><small>{usage.error ? 'Usage unavailable' : `Via CodexBar${usage.source ? ` · ${usage.source}` : ''}`}</small></div>{usage.creditsRemaining !== undefined && <span className="mb-codexbar-credits">{usage.creditsRemaining.toLocaleString()} credits</span>}</header>
+    {usage.error ? <p>{usage.error}</p> : <div className="mb-codexbar-windows">
+      {usage.primary && <UsageMeter label="Session" window={usage.primary} />}
+      {usage.secondary && <UsageMeter label="Weekly" window={usage.secondary} />}
+      {!usage.primary && !usage.secondary && <p>CodexBar did not report an active usage window.</p>}
+    </div>}
+  </section>;
+}
+
+function UsageMeter({ label, window }: { label: string; window: { usedPercent: number; resetsAt?: string } }) {
+  const remaining = Math.max(0, 100 - window.usedPercent);
+  return <div className="mb-usage-meter"><div><strong>{label}</strong><span>{Math.round(remaining)}% left{window.resetsAt ? ` · ${resetLabel(window.resetsAt)}` : ''}</span></div><div className="mb-usage-track"><i style={{ width: `${remaining}%` }} /></div></div>;
 }
 
 function MenuSection({ title, count, action, attention, children }: { title: string; count?: number; action?: ReactNode; attention?: boolean; children: ReactNode }) {
@@ -517,6 +539,17 @@ async function sendWhenReady(created: CodexSession, text: string): Promise<void>
 }
 
 function delay(milliseconds: number): Promise<void> { return new Promise((resolve) => window.setTimeout(resolve, milliseconds)); }
+function resetLabel(value: string): string {
+  const reset = new Date(value);
+  if (Number.isNaN(reset.getTime())) return 'reset pending';
+  const milliseconds = reset.getTime() - Date.now();
+  if (milliseconds <= 0) return 'resetting';
+  const minutes = Math.ceil(milliseconds / 60_000);
+  if (minutes < 60) return `resets in ${minutes}m`;
+  const hours = Math.ceil(minutes / 60);
+  if (hours < 24) return `resets in ${hours}h`;
+  return `resets in ${Math.ceil(hours / 24)}d`;
+}
 function healthHeadline(snapshot: MenuBarSnapshot, connected: boolean): string {
   if (!connected) return 'Core connection unavailable';
   if (snapshot.summary.status === 'healthy') return 'All monitored systems are healthy';

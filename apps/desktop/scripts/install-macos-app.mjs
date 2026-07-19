@@ -85,6 +85,8 @@ await writeFile(join(packagedApp, 'package.json'), `${JSON.stringify({
   main: 'out/main/index.cjs'
 }, null, 2)}\n`);
 execFileSync('/usr/bin/ditto', [builtDesktop, join(packagedApp, 'out')]);
+await mkdir(join(packagedApp, 'node_modules'), { recursive: true });
+execFileSync('/usr/bin/ditto', [join(workspaceDirectory, 'node_modules/ws'), join(packagedApp, 'node_modules/ws')]);
 
 const voiceHelper = join(packagedApp, 'out/native/Codex Micro Voice.app');
 await access(voiceHelper);

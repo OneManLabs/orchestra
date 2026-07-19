@@ -296,6 +296,111 @@ html[data-view="menubar"], html[data-view="menubar"] body, html[data-view="menub
   .menu-bar-root *, .menu-bar-root *::before, .menu-bar-root *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
+/* Native macOS menu treatment, informed by CodexBar's compact card hierarchy.
+   This is an original Orchestra implementation and contains no CodexBar UI code. */
+.menu-bar-root {
+  color-scheme: light dark;
+  --mb-bg: rgba(246, 246, 246, .96);
+  --mb-panel: rgba(255, 255, 255, .72);
+  --mb-panel-2: rgba(255, 255, 255, .92);
+  --mb-line: rgba(60, 60, 67, .18);
+  --mb-line-soft: rgba(60, 60, 67, .11);
+  --mb-text: #1d1d1f;
+  --mb-text-2: #515154;
+  --mb-muted: #7c7c80;
+  --mb-blue: #087aff;
+  --mb-green: #28a745;
+  --mb-yellow: #b46a00;
+  --mb-red: #d70015;
+  border-color: rgba(0, 0, 0, .16);
+  border-radius: 12px;
+  background: var(--mb-bg);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .28), 0 1px 0 rgba(255, 255, 255, .72) inset;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.menu-bar-root button:focus-visible, .menu-bar-root input:focus-visible, .menu-bar-root select:focus-visible, .menu-bar-root textarea:focus-visible { outline-color: rgba(0, 122, 255, .55); }
+.menu-bar-root ::-webkit-scrollbar-thumb { background: rgba(60, 60, 67, .25); }
+.mb-hero, .mb-hero--critical, .mb-hero--degraded, .mb-hero--offline { border-bottom-color: var(--mb-line-soft); background: transparent; }
+.mb-hero__main { min-height: 54px; padding: 9px 12px 4px; }
+.mb-hero__main:hover, .mb-icon-button:hover { background: rgba(0, 0, 0, .045); }
+.mb-brand-mark { width: 30px; height: 30px; border: 0; border-radius: 8px; color: #fff; background: linear-gradient(145deg, #343438, #111113); box-shadow: 0 1px 2px rgba(0, 0, 0, .25); }
+.mb-hero__copy strong { color: var(--mb-text); font-size: 13px; font-weight: 650; }
+.mb-hero__copy small, .mb-hero__stats, .mb-hero__stats > span svg, .mb-hero__main > svg, .mb-icon-button { color: var(--mb-muted); }
+.mb-health { height: 18px; border: 0; color: #16763b; background: rgba(52, 199, 89, .14); font-weight: 650; }
+.mb-health--degraded { color: #8a5400; background: rgba(255, 159, 10, .15); }
+.mb-health--critical { color: #b00020; background: rgba(255, 59, 48, .14); }
+.mb-health--offline { color: var(--mb-muted); background: rgba(120, 120, 128, .13); }
+.mb-dot--online { box-shadow: none; }
+.mb-search-wrap { height: 38px; margin: 6px 9px 3px; padding: 0 10px; border: 1px solid var(--mb-line); border-radius: 8px; background: rgba(255, 255, 255, .56); }
+.mb-search-wrap input { color: var(--mb-text); }
+.mb-search-wrap input::placeholder { color: var(--mb-muted); }
+.mb-search-wrap kbd { color: var(--mb-muted); background: rgba(118, 118, 128, .12); }
+.mb-scroll { padding: 4px 8px 10px; }
+.mb-quick-strip { gap: 5px; padding: 4px 0 9px; }
+.mb-quick-strip button { min-height: 48px; border: 1px solid var(--mb-line-soft); border-radius: 9px; color: var(--mb-text-2); background: var(--mb-panel); box-shadow: 0 1px 1px rgba(0, 0, 0, .04); }
+.mb-quick-strip button:hover { border-color: rgba(0, 122, 255, .22); color: var(--mb-text); background: var(--mb-panel-2); }
+.mb-quick-strip button > span { color: #087aff; background: transparent; }
+.mb-section { margin: 0 0 9px; border: 1px solid var(--mb-line-soft); border-radius: 10px; background: var(--mb-panel); box-shadow: 0 1px 2px rgba(0, 0, 0, .035); }
+.mb-section > header { min-height: 29px; padding: 0 9px; border-bottom-color: var(--mb-line-soft); background: transparent; }
+.mb-section > header h2 { color: var(--mb-text-2); font-weight: 650; text-transform: none; letter-spacing: 0; }
+.mb-section > header > span { color: var(--mb-muted); background: rgba(118, 118, 128, .12); }
+.mb-section > header button { color: #087aff; }
+.mb-list, .mb-empty { color: var(--mb-text); background: transparent; }
+.mb-empty { border-color: var(--mb-line-soft); }
+.mb-list > article + article, .mb-recent-row + .mb-recent-row { border-top-color: var(--mb-line-soft); }
+.mb-job, .mb-device, .mb-approval, .mb-alert, .mb-recent-row { color: var(--mb-text); background: transparent; }
+.mb-row-main:hover, .mb-device__row:hover, .mb-recent-row:hover, .mb-command-results > button:hover { background: rgba(0, 122, 255, .07); }
+.mb-job__icon, .mb-approval__head > span, .mb-alert > span { border: 0; color: #087aff; background: rgba(0, 122, 255, .10); }
+.mb-job__icon + span strong, .mb-device__row strong, .mb-approval__head strong, .mb-alert strong, .mb-recent-row strong { color: var(--mb-text); }
+.mb-job__icon + span small, .mb-job__state, .mb-device__row small, .mb-device__summary, .mb-approval p, .mb-alert p, .mb-alert small, .mb-recent-row small { color: var(--mb-muted); }
+.mb-device.expanded { background: rgba(0, 122, 255, .045); }
+.mb-device__detail { border-top-color: var(--mb-line-soft); background: transparent; }
+.mb-mini-metrics > div, .mb-device-actions button, .mb-power-actions button, .mb-row-actions button, .mb-approval__actions button, .mb-alert button { border-color: var(--mb-line); color: var(--mb-text-2); background: rgba(255, 255, 255, .55); }
+.mb-mini-metrics span { color: var(--mb-muted); }
+.mb-mini-metrics strong { color: var(--mb-text); }
+.mb-progress, .mb-usage-track { background: rgba(118, 118, 128, .16); }
+.mb-progress i, .mb-usage-track i { background: #087aff; }
+.mb-exit-card { margin: 0 0 9px; border-color: var(--mb-line-soft); color: var(--mb-text); background: var(--mb-panel); box-shadow: 0 1px 2px rgba(0, 0, 0, .035); }
+.mb-exit-card small, .mb-exit-card > span:nth-last-of-type(1), .mb-empty small { color: var(--mb-muted); }
+.mb-footer { border-top-color: var(--mb-line); background: rgba(242, 242, 247, .94); }
+.mb-footer > button, .mb-login-toggle { color: var(--mb-text-2); }
+.mb-footer > button:hover, .mb-login-toggle:hover { color: var(--mb-text); background: rgba(0, 0, 0, .05); }
+.mb-footer__open { color: #087aff !important; }
+.mb-codexbar-card { margin: 0 0 9px; padding: 10px; border: 1px solid var(--mb-line-soft); border-radius: 10px; background: var(--mb-panel); box-shadow: 0 1px 2px rgba(0, 0, 0, .035); }
+.mb-codexbar-card > header { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.mb-codexbar-mark { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 7px; color: #fff; background: #1d1d1f; }
+.mb-codexbar-card > header > div { display: grid; gap: 1px; flex: 1; }
+.mb-codexbar-card > header strong { color: var(--mb-text); font-size: 11.5px; }
+.mb-codexbar-card > header small, .mb-codexbar-card p { margin: 0; color: var(--mb-muted); font-size: 9.5px; }
+.mb-codexbar-credits { color: var(--mb-muted); font-size: 9px; }
+.mb-codexbar-windows { display: grid; gap: 9px; }
+.mb-usage-meter { display: grid; gap: 5px; }
+.mb-usage-meter > div:first-child { display: flex; justify-content: space-between; gap: 8px; }
+.mb-usage-meter strong { color: var(--mb-text-2); font-size: 9.5px; font-weight: 600; }
+.mb-usage-meter span { overflow: hidden; color: var(--mb-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.mb-usage-track { overflow: hidden; height: 5px; border-radius: 4px; }
+.mb-usage-track i { display: block; height: 100%; border-radius: inherit; }
+
+@media (prefers-color-scheme: dark) {
+  .menu-bar-root {
+    --mb-bg: rgba(36, 36, 38, .97);
+    --mb-panel: rgba(54, 54, 57, .78);
+    --mb-panel-2: rgba(66, 66, 69, .94);
+    --mb-line: rgba(255, 255, 255, .15);
+    --mb-line-soft: rgba(255, 255, 255, .09);
+    --mb-text: #f5f5f7;
+    --mb-text-2: #d1d1d6;
+    --mb-muted: #98989d;
+    border-color: rgba(255, 255, 255, .16);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, .65), 0 1px 0 rgba(255, 255, 255, .10) inset;
+  }
+  .mb-hero__main:hover, .mb-icon-button:hover, .mb-footer > button:hover, .mb-login-toggle:hover { background: rgba(255, 255, 255, .06); }
+  .mb-search-wrap, .mb-mini-metrics > div, .mb-device-actions button, .mb-power-actions button, .mb-row-actions button, .mb-approval__actions button, .mb-alert button { background: rgba(255, 255, 255, .055); }
+  .mb-footer { background: rgba(29, 29, 31, .94); }
+  .mb-brand-mark, .mb-codexbar-mark { color: #111; background: #f5f5f7; }
+}
+
 /* A status popover is glanced at, not studied. Keep every operational label
    comfortably legible on a Retina display while retaining the compact layout. */
 .mb-hero__copy small { font-size: 10.5px; }
