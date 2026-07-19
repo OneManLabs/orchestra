@@ -1161,6 +1161,7 @@ function createMenuBar(): void {
 const ownsInstanceLock = app.requestSingleInstanceLock();
 if (!ownsInstanceLock) app.quit();
 else {
+  if (process.platform === 'darwin') process.on('SIGUSR2', handleMenuBarToggleRequest);
   app.on('second-instance', (_event, argv) => {
     if (argv.includes(MENU_BAR_TOGGLE_ARG)) {
       handleMenuBarToggleRequest();

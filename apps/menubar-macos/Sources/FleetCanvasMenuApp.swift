@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import Foundation
 
 private let maximumResponseBytes = 2 * 1024 * 1024
@@ -125,6 +126,12 @@ final class FleetCanvasMenuApp: NSObject, NSApplicationDelegate {
     }
 
     private func toggleFleetMenuBar() {
+        if let running = NSRunningApplication.runningApplications(
+            withBundleIdentifier: "com.fleetcanvas.desktop"
+        ).first,
+           kill(running.processIdentifier, SIGUSR2) == 0 {
+            return
+        }
         launchFleetCanvas(arguments: ["--toggle-menubar"], forceNewInstance: true)
     }
 
