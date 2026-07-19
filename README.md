@@ -37,8 +37,6 @@ Orchestra is designed for homelabs, independent developers, researchers, creator
 
 ### Device-hosted Codex controls
 
-![Codex command center showing model, permission, plan, memory, and review controls](docs/images/codex-command-center.png)
-
 ### Route work with `@` device mentions
 
 ![Codex device picker showing synthetic Orchestra devices selected with an at mention](docs/images/codex-device-mentions.png)
