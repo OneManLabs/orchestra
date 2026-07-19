@@ -1,0 +1,23 @@
+{
+  "name": "@fleet/sdk",
+  "version": "2.0.0",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fleet/shared": "2.0.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "coreUrl": "https://fleet-core.example.ts.net:4780",
+  "role": "worker",
+  "deviceName": "build-worker-01",
+  "projectRoots": [
+    "/srv/fleet-projects"
+  ],
+  "enrollmentToken": "replace-with-a-one-time-enrollment-token",
+  "allowPowerActions": false,
+  "preventSleepDuringJobs": true,
+  "requireSignedUpdates": true
+}

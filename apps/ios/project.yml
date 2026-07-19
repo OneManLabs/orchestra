@@ -1,0 +1,70 @@
+name: FleetCanvas
+options:
+  minimumXcodeGenVersion: 2.44.1
+  deploymentTarget:
+    iOS: "18.0"
+  groupSortPosition: top
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: 7S8VS8SL2A
+    SWIFT_VERSION: 6.0
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    CODE_SIGN_STYLE: Automatic
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 2.0.0
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+targets:
+  FleetCanvas:
+    type: application
+    platform: iOS
+    sources:
+      - path: FleetCanvas
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fleetcanvas.ios
+        PRODUCT_NAME: Orchestra
+        PRODUCT_MODULE_NAME: FleetCanvas
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: FleetCanvas/Resources/FleetCanvas.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Debug:
+          INFOPLIST_FILE: FleetCanvas/Resources/Info-Debug.plist
+        Release:
+          INFOPLIST_FILE: FleetCanvas/Resources/Info-Release.plist
+    scheme:
+      testTargets:
+        - FleetCanvasTests
+        - FleetCanvasUITests
+      gatherCoverageData: true
+  FleetCanvasTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: FleetCanvasTests
+    dependencies:
+      - target: FleetCanvas
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fleetcanvas.ios.tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Orchestra.app/Orchestra"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+  FleetCanvasUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: FleetCanvasUITests
+    dependencies:
+      - target: FleetCanvas
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fleetcanvas.ios.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+        TEST_TARGET_NAME: FleetCanvas

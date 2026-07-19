@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+getent group fleet-agent >/dev/null || addgroup --system fleet-agent
+created_user=false
+if ! id fleet-agent >/dev/null 2>&1; then
+  adduser --system --ingroup fleet-agent --home /var/lib/fleet-canvas-agent --no-create-home fleet-agent
+  created_user=true
+fi
+install -d -m 0750 -o fleet-agent -g fleet-agent /var/lib/fleet-canvas-agent
+install -d -m 0750 -o root -g fleet-agent /etc/fleet-canvas
+if [ "$created_user" = true ]; then touch /etc/fleet-canvas/.deb-created-user; fi
+if [ -f /etc/fleet-canvas/package-install.json ]; then
+  /usr/sbin/fleet-agent-configure --config-file /etc/fleet-canvas/package-install.json --consume-inputs
+elif [ ! -f /etc/fleet-canvas/agent.env ]; then
+  /usr/sbin/fleet-agent-configure
+fi
+chown root:fleet-agent /etc/fleet-canvas/agent.env
+chmod 0640 /etc/fleet-canvas/agent.env
+deb-systemd-helper unmask fleet-canvas-agent.service >/dev/null || true
+deb-systemd-helper enable fleet-canvas-agent.service >/dev/null || true
+if [ -d /run/systemd/system ]; then deb-systemd-invoke restart fleet-canvas-agent.service >/dev/null || exit $?; fi

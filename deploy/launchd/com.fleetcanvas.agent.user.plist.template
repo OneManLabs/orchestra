@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.fleetcanvas.agent.user</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__FLEET_BIN_DIR__/run-agent-macos-user.sh</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>FLEET_AGENT_DATA_DIR</key>
+    <string>__FLEET_DATA_DIR__</string>
+    <key>FLEET_CORE_URL</key>
+    <string>__FLEET_CORE_URL__</string>
+    <key>FLEET_DEVICE_NAME</key>
+    <string>__FLEET_DEVICE_NAME__</string>
+    <key>FLEET_DEVICE_ROLE</key>
+    <string>__FLEET_DEVICE_ROLE__</string>
+    <key>FLEET_NODE_BIN</key>
+    <string>__FLEET_BIN_DIR__/node</string>
+    <key>FLEET_PREVENT_SLEEP_DURING_JOBS</key>
+    <string>true</string>
+    <key>FLEET_PROJECT_ROOTS</key>
+    <string>__FLEET_PROJECT_ROOTS__</string>
+    <key>FLEET_RUNTIME_DIR</key>
+    <string>__FLEET_RUNTIME_DIR__</string>
+    <key>FLEET_TAILSCALE_COMMAND</key>
+    <string>__FLEET_TAILSCALE_COMMAND__</string>
+  </dict>
+  <key>KeepAlive</key>
+  <true/>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StandardErrorPath</key>
+  <string>__FLEET_LOG_PATH__</string>
+  <key>StandardOutPath</key>
+  <string>__FLEET_LOG_PATH__</string>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+</dict>
+</plist>

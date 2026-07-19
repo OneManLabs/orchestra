@@ -1,0 +1,63 @@
+#cloud-config
+hostname: fleet-gateway
+preserve_hostname: false
+manage_etc_hosts: true
+timezone: America/Denver
+locale: en_US.UTF-8
+ssh_pwauth: false
+ssh_deletekeys: true
+disable_root: true
+chpasswd:
+  expire: false
+
+users:
+  - name: fleetadmin
+    gecos: Fleet Gateway Administrator
+    primary_group: fleetadmin
+    groups: [adm, sudo, users, plugdev, netdev]
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: __PASSWORD_HASH__
+    ssh_authorized_keys:
+      - __SSH_PUBLIC_KEY__
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/20-fleet-gateway.conf
+    owner: root:root
+    permissions: '0644'
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitEmptyPasswords no
+      PubkeyAuthentication yes
+      AuthenticationMethods publickey
+      AllowUsers fleetadmin
+      X11Forwarding no
+      AllowAgentForwarding no
+      PermitTunnel no
+  - path: /etc/sudoers.d/90-fleetadmin
+    owner: root:root
+    permissions: '0440'
+    content: |
+      fleetadmin ALL=(ALL:ALL) ALL
+  - path: /etc/motd
+    owner: root:root
+    permissions: '0644'
+    content: |
+      Fleet Canvas Gateway
+
+      First boot: sudo fleet-tailscale-login
+      Status:     sudo fleet-gateway-status
+      Codex:      sudo fleet-codex-login
+
+runcmd:
+  - [/usr/sbin/sshd, -t]
+  - [systemctl, restart, ssh.service]
+  - [install, -m, '0755', /boot/firmware/fleet-payload/bootstrap-gateway.sh, /usr/local/sbin/fleet-gateway-bootstrap]
+  - [install, -m, '0644', /boot/firmware/fleet-payload/fleet-gateway-bootstrap.service, /etc/systemd/system/fleet-gateway-bootstrap.service]
+  - [systemctl, daemon-reload]
+  - [systemctl, enable, fleet-gateway-bootstrap.service]
+  - [systemctl, start, --no-block, fleet-gateway-bootstrap.service]
+
+final_message: "Fleet Gateway base configuration completed in $UPTIME seconds; appliance provisioning continues in systemd."

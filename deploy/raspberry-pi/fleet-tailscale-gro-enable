@@ -1,0 +1,32 @@
+#!/bin/sh
+# Apply Tailscale's recommended Linux UDP GRO forwarding optimization when the
+# active Ethernet driver supports it. Unsupported drivers are safe and nonfatal.
+set -eu
+
+if ! command -v ip >/dev/null 2>&1 || ! command -v ethtool >/dev/null 2>&1; then
+  echo "Fleet Tailscale GRO: ip or ethtool is unavailable; skipping." >&2
+  exit 0
+fi
+
+INTERFACE="$(ip -4 -o route show default | awk '
+  NR == 1 {
+    for (field = 1; field <= NF; field += 1) {
+      if ($field == "dev" && field < NF) { print $(field + 1); exit }
+    }
+  }
+')"
+
+case "$INTERFACE" in
+  ""|*[!A-Za-z0-9_.:@-]*)
+    echo "Fleet Tailscale GRO: no safe default-route interface found; skipping." >&2
+    exit 0
+    ;;
+esac
+
+if ethtool -K "$INTERFACE" rx-udp-gro-forwarding on rx-gro-list off; then
+  echo "Fleet Tailscale GRO: enabled on $INTERFACE."
+else
+  echo "Fleet Tailscale GRO: $INTERFACE does not support the requested features; continuing without tuning." >&2
+fi
+
+exit 0

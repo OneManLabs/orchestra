@@ -1,0 +1,584 @@
+openapi: 3.1.0
+info:
+  title: Fleet Canvas API
+  version: 2.0.0
+  description: >-
+    REST control plane for devices, Codex sessions, artifacts, pipelines,
+    policies, and automation. Collection templates describe the supported V2
+    registries; security-sensitive and state-changing actions are documented as
+    concrete paths. WebSocket Agent/client frames are defined in @fleet/shared.
+servers:
+  - url: http://127.0.0.1:4780
+security:
+  - bearerAuth: []
+paths:
+  /api/health:
+    get:
+      summary: Read Core health
+      operationId: getHealth
+      responses:
+        "200": { description: Core health, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+  /api/snapshot:
+    get:
+      summary: Read the complete fleet snapshot
+      operationId: getSnapshot
+      responses:
+        "200": { description: Current fleet snapshot, content: { application/json: { schema: { type: object } } } }
+  /api/sessions:
+    post:
+      summary: Start a Codex session
+      operationId: createCodexSession
+      description: Start a structured Codex app-server session on one online Agent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [deviceId]
+              properties:
+                deviceId: { type: string }
+                projectId: { type: string }
+                cwd: { type: string, default: "" }
+                title: { type: string, default: Codex session }
+                model: { type: string }
+                permissionMode: { $ref: "#/components/schemas/PermissionMode" }
+                approvalPolicy: { $ref: "#/components/schemas/ApprovalPolicy" }
+      responses:
+        "201": { description: Session created and Agent thread ready, content: { application/json: { schema: { $ref: "#/components/schemas/CodexSession" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+  /api/sessions/{id}/resume:
+    post:
+      summary: Resume a stopped Codex session
+      operationId: resumeCodexSession
+      description: Resume the stopped native Codex thread on its current device.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Resumed session, content: { application/json: { schema: { $ref: "#/components/schemas/CodexSession" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+  /api/sessions/{id}/fork:
+    post:
+      summary: Fork a Codex session
+      operationId: forkCodexSession
+      description: >-
+        Fork the native Codex thread on the same or another trusted device. A
+        cross-device fork transfers a bounded, checksum-verified thread rollout;
+        it does not copy Codex credentials.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceId: { type: string }
+                cwd: { type: string }
+                title: { type: string }
+                lastTurnId: { type: string }
+      responses:
+        "201": { description: Independent forked session, content: { application/json: { schema: { $ref: "#/components/schemas/CodexSession" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+  /api/sessions/{id}/move:
+    post:
+      summary: Move a Codex session to another device
+      operationId: moveCodexSession
+      description: >-
+        Resume the thread on a trusted destination and stop the source only
+        after the destination is ready. Project-backed sessions require a path
+        mapping on the destination device.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [deviceId]
+              properties:
+                deviceId: { type: string }
+                cwd: { type: string }
+      responses:
+        "200": { description: Session now running on the destination, content: { application/json: { schema: { $ref: "#/components/schemas/CodexSession" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+  /api/sessions/{id}/messages:
+    post:
+      summary: Send a message to Codex
+      operationId: sendCodexMessage
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties: { text: { type: string, minLength: 1 } }
+      responses:
+        "200": { description: Turn accepted, content: { application/json: { schema: { $ref: "#/components/schemas/CodexSession" } } } }
+  /api/sessions/{id}/respond:
+    post:
+      summary: Answer a Codex approval request
+      operationId: respondToCodexApproval
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [requestId, result]
+              properties:
+                requestId: { oneOf: [{ type: string }, { type: number }] }
+                result: {}
+      responses:
+        "200": { description: Approval response forwarded, content: { application/json: { schema: { $ref: "#/components/schemas/CodexSession" } } } }
+  /api/sessions/{id}/rpc:
+    post:
+      summary: Run an allowlisted Codex app-server UI command
+      operationId: runCodexUiCommand
+      description: >-
+        Forward a supported official app-server request through the active
+        session. Fleet rejects host escape-hatch methods, cross-thread targets,
+        and workspace paths outside the session root.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [method]
+              properties:
+                method: { type: string, description: Allowlisted method from CODEX_UI_RPC_METHODS in @fleet/shared. }
+                params: {}
+      responses:
+        "200":
+          description: App-server result and updated Fleet session
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [result, session]
+                properties:
+                  result: {}
+                  session: { $ref: "#/components/schemas/CodexSession" }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /api/sessions/{id}/interrupt:
+    post:
+      summary: Interrupt the active Codex turn
+      operationId: interruptCodexSession
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Active turn interrupted, content: { application/json: { schema: { $ref: "#/components/schemas/CodexSession" } } } }
+  /api/sessions/{id}/stop:
+    post:
+      summary: Stop a Codex session
+      operationId: stopCodexSession
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Session stopped, content: { application/json: { schema: { $ref: "#/components/schemas/CodexSession" } } } }
+  /api/v2:
+    get:
+      summary: Read the V2 domain snapshot
+      operationId: getV2Snapshot
+      responses:
+        "200": { description: Current V2 domain snapshot, content: { application/json: { schema: { type: object } } } }
+  /api/v2/enrollment/tokens:
+    post:
+      summary: Create a one-time enrollment token
+      operationId: createEnrollmentToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [label]
+              properties:
+                label: { type: string }
+                role: { enum: [core, gpu, worker, gateway, storage, workstation, phone, unknown] }
+                groupIds: { type: array, items: { type: string } }
+                updateChannel: { enum: [stable, beta, development], default: stable }
+                expiresInSeconds: { type: integer, minimum: 60, maximum: 31536000 }
+                expiresInHours: { type: number, exclusiveMinimum: 0, maximum: 8760, default: 24 }
+                maxUses: { type: integer, minimum: 1, maximum: 10000, default: 1 }
+      responses:
+        "201": { description: One-time plaintext token and persisted token metadata, content: { application/json: { schema: { type: object } } } }
+  /api/v2/enrollment/exchange:
+    post:
+      security: []
+      summary: Exchange an enrollment token
+      operationId: exchangeEnrollmentToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, device]
+              properties:
+                token: { type: string }
+                device:
+                  type: object
+                  required: [id, name, hostname, platform, arch, agentVersion, protocolVersion]
+                  properties:
+                    id: { type: string }
+                    name: { type: string }
+                    hostname: { type: string }
+                    platform: { type: string }
+                    arch: { type: string }
+                    agentVersion: { type: string }
+                    protocolVersion: { type: integer }
+      responses:
+        "201": { description: Device-bound Agent credential, content: { application/json: { schema: { type: object } } } }
+        "401": { $ref: "#/components/responses/Error" }
+  /api/v2/devices/power:
+    post:
+      summary: Control power on multiple devices
+      operationId: controlDevicePower
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [deviceIds, action]
+              properties:
+                deviceIds: { type: array, minItems: 1, items: { type: string } }
+                action: { enum: [wake, sleep, restart, shutdown, lock, logout] }
+                force: { type: boolean, default: false }
+      responses:
+        "202": { description: Per-device dispatch results, content: { application/json: { schema: { type: object } } } }
+  /api/v2/storage-connections/{id}/files:
+    get:
+      summary: Browse a mounted storage directory
+      operationId: browseMountedStorage
+      description: Browse a confined Core-mounted provider path. S3/MinIO metadata-only connections cannot be browsed here.
+      parameters:
+        - { $ref: "#/components/parameters/Id" }
+        - { name: path, in: query, schema: { type: string, default: "" } }
+        - { name: cursor, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 500, default: 200 } }
+      responses:
+        "200": { description: Directory entries and optional next cursor, content: { application/json: { schema: { type: object } } } }
+        "409": { $ref: "#/components/responses/Error" }
+  /api/v2/artifacts/{id}/versions:
+    post:
+      summary: Register an artifact version
+      operationId: createArtifactVersion
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sizeBytes, checksumSha256]
+              properties:
+                sizeBytes: { type: integer, minimum: 0, maximum: 9007199254740991 }
+                checksumSha256: { $ref: "#/components/schemas/Sha256" }
+                mimeType: { type: string }
+                locations: { type: array, items: { type: object, additionalProperties: true }, default: [] }
+                metadata: { type: object, additionalProperties: true, default: {} }
+      responses:
+        "201": { description: Registered immutable version metadata, content: { application/json: { schema: { type: object } } } }
+  /api/v2/artifacts/{id}/promote:
+    post:
+      summary: Promote an artifact version
+      operationId: promoteArtifact
+      description: >-
+        Record one checksum-verified artifact version as selected for an
+        environment. Promotion changes metadata only; it does not copy or deploy
+        artifact bytes.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [environment, confirm]
+              properties:
+                environment: { type: string, minLength: 1, maxLength: 200 }
+                versionId: { type: string }
+                confirm: { type: boolean, const: true }
+      responses:
+        "200": { description: Updated artifact metadata, content: { application/json: { schema: { type: object } } } }
+        "409": { $ref: "#/components/responses/Error" }
+  /api/v2/transfers/{id}/start:
+    post:
+      summary: Start or resume an artifact transfer
+      operationId: startArtifactTransfer
+      description: Start or resume an Agent/Core/mounted-provider chunked transfer.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "202": { description: Transfer accepted, content: { application/json: { schema: { type: object } } } }
+  /api/v2/transfers/{id}/cancel:
+    post:
+      summary: Cancel an artifact transfer
+      operationId: cancelArtifactTransfer
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Cancelled transfer, content: { application/json: { schema: { type: object } } } }
+  /api/v2/pipelines/{id}/run:
+    post:
+      summary: Run a pipeline
+      operationId: runPipeline
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { parameters: { type: object, additionalProperties: true } }
+      responses:
+        "202": { description: Pipeline run accepted, content: { application/json: { schema: { type: object } } } }
+  /api/v2/pipeline-runs/{id}/cancel:
+    post:
+      summary: Cancel a pipeline run
+      operationId: cancelPipelineRun
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Cancelled run, content: { application/json: { schema: { type: object } } } }
+  /api/v2/pipelines/{id}/validate:
+    post:
+      summary: Validate a pipeline DAG
+      operationId: validatePipeline
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: DAG validation result, content: { application/json: { schema: { type: object, properties: { valid: { type: boolean }, errors: { type: array, items: { type: string } } } } } } }
+  /api/v2/pipeline-runs/{id}/approve:
+    post:
+      summary: Decide a pipeline approval gate
+      operationId: approvePipelineNode
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nodeRunId, approved]
+              properties: { nodeRunId: { type: string }, approved: { type: boolean }, input: { type: object, additionalProperties: true } }
+      responses:
+        "200": { description: Updated run, content: { application/json: { schema: { type: object } } } }
+  /api/v2/pipeline-runs/{id}/retry:
+    post:
+      summary: Retry failed pipeline nodes
+      operationId: retryPipelineRun
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Failed and cancelled nodes queued again, content: { application/json: { schema: { type: object } } } }
+  /api/v2/scheduling/select:
+    post:
+      summary: Score and select a target device
+      operationId: selectScheduledDevice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                policyId: { type: string }
+                requiredLabels: { type: array, items: { type: string }, default: [] }
+                preferredDeviceIds: { type: array, items: { type: string } }
+                projectId: { type: string }
+                jobId: { type: string }
+      responses:
+        "200": { description: Persisted candidate scoring and selection, content: { application/json: { schema: { type: object } } } }
+  /api/v2/audit/verify:
+    get:
+      summary: Verify the audit hash chain
+      operationId: verifyAuditChain
+      responses:
+        "200":
+          description: Hash-chain validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valid]
+                properties:
+                  valid: { type: boolean }
+                  invalidSequence: { type: integer }
+  /api/v2/policies/evaluate:
+    post:
+      summary: Simulate a policy decision
+      operationId: simulatePolicyDecision
+      description: Evaluate local role permissions and the authoritative ABAC policy engine without executing the action.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action, resource]
+              properties:
+                action: { type: string }
+                resource: { type: string }
+                memberId: { type: string }
+                context: { type: object, additionalProperties: true, default: {} }
+      responses:
+        "200": { description: "allow, deny, or require-approval decision", content: { application/json: { schema: { type: object } } } }
+  /api/v2/secrets/{id}/read:
+    post:
+      summary: Read an authorized secret value
+      operationId: readSecret
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Secret value for an explicitly authorized caller, content: { application/json: { schema: { type: object, properties: { value: { type: string } } } } } }
+  /api/v2/backups/{id}/restore:
+    post:
+      summary: Stage a validated backup restore
+      operationId: restoreBackup
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirm]
+              properties:
+                confirm: { type: boolean, const: true }
+      responses:
+        "200":
+          description: Restore was validated and staged; Core must be restarted to apply it
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [restoreStaged, restartRequired, backupId, preRestoreBackupId]
+                properties:
+                  restoreStaged: { type: boolean, const: true }
+                  restartRequired: { type: boolean, const: true }
+                  backupId: { type: string }
+                  preRestoreBackupId: { type: string }
+  /api/v2/alerts/{id}/acknowledge:
+    post:
+      summary: Acknowledge an alert
+      operationId: acknowledgeAlert
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Updated alert, content: { application/json: { schema: { type: object } } } }
+  /api/v2/alerts/{id}/resolve:
+    post:
+      summary: Resolve an alert
+      operationId: resolveAlert
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Updated alert, content: { application/json: { schema: { type: object } } } }
+  /api/v2/{resource}:
+    get:
+      summary: List a V2 resource collection
+      operationId: listV2Resources
+      parameters: [{ $ref: "#/components/parameters/ListResource" }]
+      responses:
+        "200": { description: Resource collection, content: { application/json: { schema: { type: array, items: { type: object } } } } }
+    post:
+      summary: Create a V2 resource
+      operationId: createV2Resource
+      description: Create a member of a collection that supports collection POST. Specialized action endpoints are documented separately.
+      parameters: [{ $ref: "#/components/parameters/CreateResource" }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, additionalProperties: true } } }
+      responses:
+        "201": { description: Created resource, content: { application/json: { schema: { type: object } } } }
+  /api/v2/{resource}/{id}:
+    patch:
+      summary: Update a V2 resource
+      operationId: updateV2Resource
+      parameters: [{ $ref: "#/components/parameters/UpdateResource" }, { $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, additionalProperties: true } } }
+      responses:
+        "200": { description: Updated resource, content: { application/json: { schema: { type: object } } } }
+    delete:
+      summary: Delete a V2 resource
+      operationId: deleteV2Resource
+      parameters: [{ $ref: "#/components/parameters/DeleteResource" }, { $ref: "#/components/parameters/Id" }]
+      responses:
+        "204": { description: Deleted }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: FleetToken
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: string } }
+    ListResource:
+      name: resource
+      in: path
+      required: true
+      description: A supported V2 collection. Collection GET returns the list; fetch an individual record by filtering its ID client-side unless a specific item endpoint is documented.
+      schema:
+        enum: [sites, groups, device-profiles, telemetry, alert-rules, alerts, audit, secrets, backups, storage-connections, artifacts, transfers, pipelines, pipeline-runs, scheduling-policies, scheduling-decisions, notification-channels, notifications, api-tokens, webhooks, plugins, policies, roles, members, desktop-sessions, diagnostics, advanced-sessions, agent-teams, enrollment-tokens, device-credentials, agent-releases, update-rollouts]
+    CreateResource:
+      name: resource
+      in: path
+      required: true
+      schema:
+        enum: [sites, groups, telemetry, alert-rules, secrets, backups, storage-connections, artifacts, transfers, pipelines, scheduling-policies, notification-channels, notifications, api-tokens, webhooks, plugins, policies, members, desktop-sessions, diagnostics, agent-teams, enrollment-tokens, agent-releases, update-rollouts]
+    UpdateResource:
+      name: resource
+      in: path
+      required: true
+      schema:
+        enum: [sites, groups, device-profiles, alert-rules, storage-connections, artifacts, pipelines, scheduling-policies, notification-channels, webhooks, plugins, policies, members, agent-releases, update-rollouts]
+    DeleteResource:
+      name: resource
+      in: path
+      required: true
+      schema:
+        enum: [sites, groups, secrets, storage-connections, artifacts, pipelines, plugins, policies, members, agent-releases, update-rollouts]
+  schemas:
+    PermissionMode:
+      type: string
+      enum: [read-only, workspace-write, danger-full-access]
+      default: workspace-write
+    ApprovalPolicy:
+      type: string
+      enum: [untrusted, on-request, never]
+      default: on-request
+    Sha256:
+      type: string
+      pattern: "^[a-fA-F0-9]{64}$"
+    CodexSession:
+      type: object
+      required: [id, deviceId, cwd, title, permissionMode, approvalPolicy, status, createdAt, updatedAt, events, pendingApprovals]
+      properties:
+        id: { type: string }
+        deviceId: { type: string }
+        projectId: { type: string }
+        cwd: { type: string }
+        title: { type: string }
+        threadId: { type: string }
+        turnId: { type: string }
+        model: { type: string }
+        permissionMode: { $ref: "#/components/schemas/PermissionMode" }
+        approvalPolicy: { $ref: "#/components/schemas/ApprovalPolicy" }
+        status: { enum: [starting, ready, thinking, awaiting-approval, completed, error, stopped] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        events: { type: array, items: { type: object, additionalProperties: true } }
+        pendingApprovals: { type: array, items: { type: object, additionalProperties: true } }
+        error: { type: string }
+    Health:
+      type: object
+      required: [ok, version, now]
+      properties:
+        ok: { type: boolean }
+        version: { type: string }
+        now: { type: string, format: date-time }
+    Error:
+      type: object
+      required: [error]
+      properties: { error: { type: string }, requestId: { type: string } }
+  responses:
+    Error:
+      description: Request failed
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }

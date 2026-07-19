@@ -1,0 +1,9 @@
+Package: fleet-canvas-agent
+Version: 2.0.0
+Section: admin
+Priority: optional
+Architecture: any
+Depends: nodejs (>= 22), systemd, init-system-helpers, adduser
+Maintainer: Fleet Canvas Administrators
+Description: Fleet Canvas managed device agent
+ Connects a device to Fleet Core for telemetry and authorized remote work.

@@ -1,0 +1,29 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Fleet Canvas Agent" Manufacturer="Fleet Canvas" Version="$(var.ProductVersion)" UpgradeCode="D686D3A8-3DF7-4AA8-A9C5-31B0315A2D4E" Scope="perMachine" InstallerVersion="500" Language="1033">
+    <MajorUpgrade DowngradeErrorMessage="A newer Fleet Canvas Agent is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="FleetCanvasFolder" Name="Fleet Canvas">
+        <Directory Id="INSTALLFOLDER" Name="Agent">
+          <Component Id="ServiceHost" Guid="*">
+            <File Id="WinSwHost" Source="$(var.StagingDir)\FleetCanvasAgentService.exe" KeyPath="yes" />
+            <File Id="WinSwConfig" Source="$(var.StagingDir)\FleetCanvasAgentService.xml" />
+            <ServiceInstall Id="FleetServiceInstall" Name="FleetCanvasAgent" DisplayName="Fleet Canvas Agent" Description="Connects this device to Fleet Canvas Core." Start="auto" Type="ownProcess" ErrorControl="normal" Account="LocalSystem">
+              <ServiceConfig Id="FleetServiceConfig" DelayedAutoStart="yes" FailureActionsWhen="failedToStopOrReturnedError" OnInstall="yes" OnReinstall="yes" />
+              <ServiceConfigFailureActions Id="FleetServiceFailures" ResetPeriod="86400" OnInstall="yes" OnReinstall="yes">
+                <Failure Action="restartService" Delay="10000" />
+                <Failure Action="restartService" Delay="30000" />
+                <Failure Action="restartService" Delay="60000" />
+              </ServiceConfigFailureActions>
+            </ServiceInstall>
+            <ServiceControl Id="FleetServiceControl" Name="FleetCanvasAgent" Start="install" Stop="both" Remove="uninstall" Wait="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+    <Feature Id="MainFeature" Title="Fleet Canvas Agent" Level="1">
+      <ComponentRef Id="ServiceHost" />
+      <ComponentGroupRef Id="RuntimeComponents" />
+    </Feature>
+  </Package>
+</Wix>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.fleetcanvas.core</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/fleet-canvas/bin/fleet-core-launchd</string>
+    <string>/Library/Application Support/Fleet Canvas/core.env</string>
+    <string>/usr/local/fleet-canvas/bin/fleet-core</string>
+    <string>--host</string><string>0.0.0.0</string>
+    <string>--data-dir</string><string>/Library/Application Support/Fleet Canvas/Core</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>5</integer>
+  <key>Umask</key><integer>63</integer>
+  <key>ProcessType</key><string>Background</string>
+  <key>StandardOutPath</key><string>/Library/Logs/Fleet Canvas/core.log</string>
+  <key>StandardErrorPath</key><string>/Library/Logs/Fleet Canvas/core-error.log</string>
+</dict>
+</plist>

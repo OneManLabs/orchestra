@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+printf 'Fleet Gateway: %s\n' "$(hostname)"
+printf 'Address:       %s\n' "$(hostname -I 2>/dev/null | xargs)"
+printf 'Uptime:        %s\n' "$(uptime -p 2>/dev/null || true)"
+printf '\nTailscale\n'
+tailscale status 2>&1 || true
+printf '\nAdvertised configuration\n'
+tailscale debug prefs 2>/dev/null | jq '{Hostname,AdvertiseRoutes,AdvertiseExitNode,RunSSH,OperatorUser}' 2>/dev/null || true
+printf '\nFleet Agent\n'
+systemctl --no-pager --full status fleet-canvas-agent.service 2>&1 | sed -n '1,14p' || true
+printf '\nNetwork monitor\n'
+systemctl --no-pager --full status fleet-network-monitor.timer 2>&1 | sed -n '1,10p' || true
+printf '\nUPS\n'
+printf 'NUT mode: '
+sed -n 's/^MODE=//p' /etc/nut/nut.conf 2>/dev/null || echo unavailable
+printf '\nBootstrap\n'
+cat /var/lib/fleet-gateway/bootstrap-v2.complete 2>/dev/null || \
+  systemctl --no-pager --full status fleet-gateway-bootstrap.service 2>&1 | sed -n '1,16p'

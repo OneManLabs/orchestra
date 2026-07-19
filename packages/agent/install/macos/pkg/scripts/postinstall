@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+BASE="/usr/local/share/fleet-canvas-agent-installer"
+CONFIG="/Library/Application Support/Fleet Canvas/package-install.env"
+if [[ -e "$CONFIG" ]]; then
+  [[ -f "$CONFIG" && ! -L "$CONFIG" && "$(stat -f '%Su' "$CONFIG")" == root && "$(stat -f '%Lp' "$CONFIG")" -le 600 ]] || { echo "Unsafe package configuration: $CONFIG" >&2; exit 1; }
+  set -a
+  source "$CONFIG"
+  set +a
+fi
+CONSOLE_USER="$(stat -f '%Su' /dev/console)"
+if [[ "$CONSOLE_USER" == root || "$CONSOLE_USER" == loginwindow ]]; then
+  CONSOLE_USER="${FLEET_SERVICE_USER:-_fleetagent}"
+fi
+if ! id "$CONSOLE_USER" >/dev/null 2>&1; then
+  [[ "$CONSOLE_USER" == _fleetagent ]] || { echo "Configured service user does not exist: $CONSOLE_USER" >&2; exit 1; }
+  uid=499
+  while dscl . -search /Users UniqueID "$uid" | grep -q .; do uid=$((uid - 1)); [[ $uid -ge 400 ]] || { echo "No system UID is available for _fleetagent." >&2; exit 1; }; done
+  dscl . -create /Groups/_fleetagent
+  dscl . -create /Groups/_fleetagent PrimaryGroupID "$uid"
+  dscl . -create /Users/_fleetagent
+  dscl . -create /Users/_fleetagent UniqueID "$uid"
+  dscl . -create /Users/_fleetagent PrimaryGroupID "$uid"
+  dscl . -create /Users/_fleetagent NFSHomeDirectory "/Library/Application Support/Fleet Canvas/state"
+  dscl . -create /Users/_fleetagent UserShell /usr/bin/false
+  dscl . -create /Users/_fleetagent IsHidden 1
+fi
+FLEET_SERVICE_USER="$CONSOLE_USER" "$BASE/install/macos/install.sh" --bundle "$BASE/bundle" --service-user "$CONSOLE_USER" --headless
+rm -f "$CONFIG"
+exit 0

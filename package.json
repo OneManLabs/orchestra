@@ -1,0 +1,42 @@
+{
+  "name": "fleet-canvas",
+  "version": "2.0.0",
+  "private": true,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "description": "Private command and control for a Tailscale-connected compute fleet",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run build -w @fleet/core && npm run build -w @fleet/agent && npm run dev -w @fleet/desktop",
+    "dev:core": "npm run dev -w @fleet/core",
+    "dev:agent": "npm run dev -w @fleet/agent",
+    "dev:web": "cross-env FLEET_TOKEN=fleet-canvas-local-development-recovery-token-0001 concurrently -k -n core,agent,web -c blue,green,magenta \"npm run dev -w @fleet/core -- --allow-unauthenticated-loopback\" \"npm run dev:agent\" \"npm run dev:web -w @fleet/desktop\"",
+    "dev:simulator": "npm run dev -w @fleet/simulator --",
+    "demo:readme": "node scripts/readme-demo.mjs",
+    "start:desktop": "npm run start -w @fleet/desktop",
+    "build": "npm run build -ws --if-present",
+    "build:web": "npm run build:web -w @fleet/desktop",
+    "audit:publication": "node scripts/audit-publication.mjs",
+    "typecheck": "npm run typecheck -ws --if-present",
+    "test": "npm run test -ws --if-present",
+    "start:core": "npm run start -w @fleet/core",
+    "start:agent": "npm run start -w @fleet/agent",
+    "start:mcp": "npm run dev -w @fleet/mcp --",
+    "docker:build": "docker compose -f deploy/compose.yaml build",
+    "docker:up": "docker compose -f deploy/compose.yaml up -d core",
+    "verify": "npm run audit:publication && npm run typecheck && npm test && npm run build && npm audit --audit-level=high"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "concurrently": "^9.1.2",
+    "cross-env": "^10.1.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

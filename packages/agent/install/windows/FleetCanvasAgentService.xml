@@ -1,0 +1,17 @@
+<service>
+  <id>FleetCanvasAgent</id>
+  <name>Fleet Canvas Agent</name>
+  <description>Connects this device to Fleet Canvas Core.</description>
+  <executable>%BASE%\node.exe</executable>
+  <arguments>"%BASE%\service-host.mjs"</arguments>
+  <workingdirectory>%BASE%</workingdirectory>
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+  <hidewindow>true</hidewindow>
+  <onfailure action="restart" delay="10 sec" />
+  <onfailure action="restart" delay="30 sec" />
+  <resetfailure>1 hour</resetfailure>
+  <stoptimeout>15 sec</stoptimeout>
+  <logpath>%ProgramData%\Fleet Canvas\agent\logs</logpath>
+  <log mode="roll-by-size"><sizeThreshold>10240</sizeThreshold><keepFiles>4</keepFiles></log>
+</service>

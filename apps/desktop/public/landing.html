@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07100e" />
+    <meta name="description" content="Orchestra Canvas is the calm command surface for every machine, workflow, and Codex session in your private network." />
+    <link rel="icon" href="/fleet-icon.svg" type="image/svg+xml" />
+    <title>Orchestra Canvas — Every machine, one command surface</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --ink: #effff8;
+        --muted: #93aaa0;
+        --line: rgba(190, 255, 225, .13);
+        --green: #69f0b1;
+        --green-strong: #39d891;
+        --blue: #75cfff;
+        --night: #050907;
+        --panel: #0a1210;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; color: var(--ink); background: var(--night); font-size: 16px; -webkit-font-smoothing: antialiased; }
+      body::before {
+        position: fixed;
+        z-index: -2;
+        inset: 0;
+        content: "";
+        background:
+          radial-gradient(circle at 78% 9%, rgba(57, 216, 145, .13), transparent 28rem),
+          radial-gradient(circle at 6% 46%, rgba(117, 207, 255, .07), transparent 24rem),
+          linear-gradient(180deg, #07100e 0, #050907 72%);
+      }
+      body::after {
+        position: fixed;
+        z-index: -1;
+        inset: 0;
+        content: "";
+        opacity: .24;
+        background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+        background-size: 64px 64px;
+        mask-image: linear-gradient(to bottom, black, transparent 78%);
+      }
+
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; }
+      .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+      .site-header { position: sticky; z-index: 20; top: 0; border-bottom: 1px solid transparent; background: rgba(5, 9, 7, .78); backdrop-filter: blur(18px); }
+      .nav { display: flex; align-items: center; height: 74px; }
+      .brand { display: inline-flex; align-items: center; gap: 11px; font-size: 15px; letter-spacing: -.02em; }
+      .brand img { width: 33px; height: 33px; border: 1px solid rgba(105, 240, 177, .24); border-radius: 10px; box-shadow: 0 0 26px rgba(57, 216, 145, .12); }
+      .brand span { color: var(--muted); }
+      .nav-links { display: flex; align-items: center; gap: 31px; margin: 0 auto; color: #a9bdb4; font-size: 13px; }
+      .nav-links a:hover { color: #fff; }
+      .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 19px; border: 1px solid rgba(105, 240, 177, .35); border-radius: 10px; color: #052017; background: var(--green); box-shadow: 0 12px 35px rgba(57, 216, 145, .13); font-weight: 700; font-size: 13px; cursor: pointer; transition: transform 160ms ease, background 160ms ease; }
+      .button:hover { transform: translateY(-2px); background: #8affc6; }
+      .button--ghost { color: #cde3d9; border-color: var(--line); background: rgba(255,255,255,.035); box-shadow: none; }
+      .button--ghost:hover { background: rgba(255,255,255,.07); }
+      .menu-button { display: none; width: 42px; height: 42px; margin-left: auto; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: rgba(255,255,255,.04); font-size: 20px; }
+
+      .hero { display: grid; grid-template-columns: minmax(0, .93fr) minmax(480px, 1.07fr); gap: 70px; align-items: center; min-height: 730px; padding: 88px 0 80px; }
+      .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 23px; color: #9bd8bd; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+      .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(105,240,177,.09), 0 0 22px var(--green); }
+      h1 { max-width: 720px; margin: 0; font-size: clamp(54px, 6.4vw, 92px); font-weight: 620; letter-spacing: -.068em; line-height: .93; }
+      h1 em { color: var(--green); font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+      .hero-copy > p { max-width: 550px; margin: 28px 0 0; color: var(--muted); font-size: 18px; line-height: 1.7; }
+      .hero-actions { display: flex; gap: 11px; margin-top: 34px; }
+      .trust-row { display: flex; flex-wrap: wrap; gap: 17px; margin-top: 35px; color: #657a70; font-size: 11px; }
+      .trust-row span { display: inline-flex; align-items: center; gap: 7px; }
+      .trust-row i { color: var(--green); font-style: normal; }
+
+      .product-wrap { position: relative; }
+      .product-wrap::before { position: absolute; inset: 13% 8%; content: ""; border-radius: 50%; background: rgba(57,216,145,.15); filter: blur(78px); }
+      .product { position: relative; overflow: hidden; border: 1px solid rgba(205,255,232,.16); border-radius: 19px; background: #09100e; box-shadow: 0 35px 90px #000b, 0 0 0 1px rgba(255,255,255,.02) inset; transform: perspective(1200px) rotateY(-4deg) rotateX(2deg); }
+      .window-bar { display: flex; align-items: center; height: 39px; padding: 0 14px; border-bottom: 1px solid #17221e; background: #0b1210; }
+      .lights { display: flex; gap: 6px; }
+      .lights i { width: 8px; height: 8px; border-radius: 50%; background: #31423a; }
+      .window-bar span { margin: 0 auto; color: #50645b; font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+      .app-frame { display: grid; grid-template-columns: 126px 1fr; height: 430px; }
+      .mini-sidebar { padding: 17px 11px; border-right: 1px solid #17221e; background: #080d0c; }
+      .mini-brand { display: flex; align-items: center; gap: 7px; margin: 0 5px 24px; color: #d9eee5; font-size: 8px; font-weight: 700; }
+      .mini-brand b { display: grid; place-items: center; width: 19px; height: 19px; border: 1px solid #2d5a47; border-radius: 6px; color: var(--green); background: #10241b; }
+      .side-label { margin: 13px 7px 5px; color: #3e5249; font-size: 5px; font-weight: 800; letter-spacing: .14em; }
+      .side-item { display: flex; align-items: center; gap: 7px; height: 27px; padding: 0 7px; border-radius: 6px; color: #597066; font-size: 7px; }
+      .side-item i { width: 8px; height: 8px; border: 1px solid #42564d; border-radius: 2px; }
+      .side-item.active { color: #e8fff4; border: 1px solid #1c392c; background: #112219; }
+      .side-item.active i { border-color: var(--green); background: rgba(105,240,177,.15); }
+      .canvas { position: relative; overflow: hidden; background: radial-gradient(circle at center, #102019, #080d0c 70%); }
+      .canvas::before { position: absolute; inset: 0; content: ""; opacity: .25; background-image: radial-gradient(#4a6f5d 1px, transparent 1px); background-size: 18px 18px; }
+      .canvas-head { position: relative; z-index: 2; display: flex; justify-content: space-between; padding: 18px 21px; }
+      .canvas-head div { display: grid; gap: 5px; }
+      .canvas-head strong { font-size: 11px; }
+      .canvas-head span { color: #587067; font-size: 6px; }
+      .live-pill { align-self: start; padding: 5px 8px; border: 1px solid #25513d; border-radius: 9px; color: var(--green); background: rgba(26,82,56,.22); font-size: 6px; }
+      .network { position: absolute; inset: 70px 8px 10px; }
+      .network-line { position: absolute; height: 1px; background: linear-gradient(90deg, transparent, #2b7a58, transparent); transform-origin: left; }
+      .line-a { top: 47%; left: 18%; width: 53%; transform: rotate(-13deg); }
+      .line-b { top: 39%; left: 24%; width: 48%; transform: rotate(24deg); }
+      .line-c { top: 67%; left: 25%; width: 47%; transform: rotate(-24deg); }
+      .node { position: absolute; display: grid; gap: 5px; width: 96px; padding: 10px; border: 1px solid #1d3b2e; border-radius: 9px; background: rgba(12,28,21,.94); box-shadow: 0 12px 24px #0007; }
+      .node b { display: flex; align-items: center; gap: 6px; font-size: 7px; }
+      .node b i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 9px var(--green); }
+      .node small { color: #52695e; font-size: 5px; }
+      .node meter { width: 100%; height: 3px; accent-color: var(--green); }
+      .node-core { top: 38%; left: calc(50% - 48px); border-color: #38785a; background: #10291d; transform: scale(1.06); }
+      .node-one { top: 4%; left: 7%; }
+      .node-two { top: 10%; right: 5%; }
+      .node-three { bottom: 5%; left: 8%; }
+      .node-four { right: 7%; bottom: 3%; }
+      .status-card { position: absolute; right: -20px; bottom: -28px; display: grid; grid-template-columns: auto auto; gap: 8px 22px; width: 205px; padding: 18px; border: 1px solid rgba(117,207,255,.22); border-radius: 14px; background: rgba(10,19,20,.93); box-shadow: 0 24px 55px #000b; backdrop-filter: blur(18px); }
+      .status-card span { color: #6c8178; font-size: 7px; text-transform: uppercase; }
+      .status-card strong { font-size: 17px; font-weight: 520; }
+      .status-card strong:last-child { color: var(--blue); }
+
+      .proof { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .proof div { padding: 29px 0 30px; text-align: center; }
+      .proof div + div { border-left: 1px solid var(--line); }
+      .proof strong { display: block; font-size: 27px; font-weight: 520; letter-spacing: -.04em; }
+      .proof span { color: #61766c; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+
+      .section { padding: 128px 0; }
+      .section-heading { display: grid; grid-template-columns: .8fr 1.2fr; gap: 90px; align-items: end; margin-bottom: 52px; }
+      .section-heading h2 { margin: 0; max-width: 470px; font-size: clamp(38px, 5vw, 64px); font-weight: 560; letter-spacing: -.055em; line-height: 1; }
+      .section-heading p { max-width: 520px; margin: 0; color: var(--muted); line-height: 1.75; }
+      .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .feature { min-height: 274px; padding: 27px; border: 1px solid var(--line); border-radius: 15px; background: linear-gradient(145deg, rgba(16,29,24,.84), rgba(7,12,10,.84)); }
+      .feature-number { color: #486057; font-family: Georgia, serif; font-size: 13px; }
+      .feature-visual { position: relative; height: 87px; margin: 22px 0; }
+      .feature-visual i { position: absolute; display: block; border: 1px solid #2a4c3c; background: #102219; }
+      .visual-fleet i { width: 29px; height: 29px; border-radius: 8px; }
+      .visual-fleet i:nth-child(1) { top: 4px; left: 9%; }
+      .visual-fleet i:nth-child(2) { top: 45px; left: 41%; border-color: var(--green); box-shadow: 0 0 22px rgba(105,240,177,.12); }
+      .visual-fleet i:nth-child(3) { top: 2px; right: 8%; }
+      .visual-fleet::before, .visual-fleet::after { position: absolute; top: 30px; width: 41%; height: 1px; content: ""; background: #244b38; }
+      .visual-fleet::before { left: 18%; transform: rotate(23deg); }.visual-fleet::after { right: 18%; transform: rotate(-23deg); }
+      .visual-codex i { left: 7%; width: 86%; height: 18px; border-radius: 5px; }
+      .visual-codex i:nth-child(1) { top: 4px; }.visual-codex i:nth-child(2) { top: 29px; width: 64%; }.visual-codex i:nth-child(3) { top: 54px; width: 76%; border-color: #345b82; background: #0c1c27; }
+      .visual-guard i { top: 2px; left: calc(50% - 35px); width: 70px; height: 75px; border-radius: 35px 35px 18px 18px; }
+      .visual-guard i::after { position: absolute; top: 24px; left: 28px; width: 12px; height: 20px; border-right: 2px solid var(--green); border-bottom: 2px solid var(--green); content: ""; transform: rotate(42deg); }
+      .feature h3 { margin: 0 0 9px; font-size: 17px; font-weight: 600; }
+      .feature p { margin: 0; color: #73897e; font-size: 13px; line-height: 1.65; }
+
+      .cta { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; margin-bottom: 90px; padding: 52px; overflow: hidden; border: 1px solid rgba(105,240,177,.22); border-radius: 20px; background: radial-gradient(circle at 84% 40%, rgba(105,240,177,.13), transparent 18rem), #0b1612; }
+      .cta h2 { margin: 0 0 11px; font-size: clamp(34px, 4vw, 54px); font-weight: 560; letter-spacing: -.05em; }
+      .cta p { margin: 0; color: var(--muted); }
+      .cta-actions { display: flex; gap: 10px; }
+      .copy-button.copied { color: var(--green); border-color: rgba(105,240,177,.4); }
+      footer { display: flex; justify-content: space-between; padding: 0 0 38px; color: #53675e; font-size: 11px; }
+
+      @media (max-width: 900px) {
+        .nav { flex-wrap: wrap; }
+        .nav > .button { display: none; }
+        .menu-button { display: inline-grid; place-items: center; }
+        .nav-links { position: absolute; top: 65px; right: 20px; display: none; width: 190px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #0b1411; box-shadow: 0 18px 40px #000a; }
+        .nav-links.open { display: grid; }
+        .nav-links a { padding: 10px; }
+        .hero { grid-template-columns: 1fr; gap: 60px; padding-top: 74px; }
+        .hero-copy { max-width: 680px; }
+        .product { transform: none; }
+        .section-heading { grid-template-columns: 1fr; gap: 24px; }
+        .feature-grid { grid-template-columns: 1fr; }
+        .feature { min-height: 250px; }
+      }
+
+      @media (max-width: 620px) {
+        .shell { width: min(100% - 28px, 1180px); }
+        .hero { min-height: auto; padding: 64px 0 72px; }
+        h1 { font-size: clamp(51px, 15vw, 72px); }
+        .hero-copy > p { font-size: 16px; }
+        .hero-actions { align-items: stretch; flex-direction: column; }
+        .app-frame { grid-template-columns: 83px 1fr; height: 350px; }
+        .mini-sidebar { padding-inline: 7px; }
+        .side-item { padding-inline: 3px; }
+        .node { width: 75px; padding: 8px; }
+        .node-core { left: calc(50% - 38px); }
+        .canvas-head { padding: 14px; }
+        .status-card { right: -4px; bottom: -38px; width: 170px; }
+        .proof { grid-template-columns: 1fr 1fr; }
+        .proof div:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+        .proof div:nth-child(4) { border-top: 1px solid var(--line); }
+        .section { padding: 92px 0; }
+        .cta { grid-template-columns: 1fr; padding: 34px 25px; }
+        .cta-actions { flex-direction: column; }
+        footer { gap: 18px; flex-direction: column; }
+      }
+
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav shell" aria-label="Main navigation">
+        <a class="brand" href="#top" aria-label="Orchestra Canvas home"><img src="/fleet-icon.svg" alt="" /><strong>Orchestra</strong><span>Canvas</span></a>
+        <div class="nav-links" id="nav-links"><a href="#platform">Platform</a><a href="#security">Security</a><a href="#start">Get started</a></div>
+        <a class="button" href="/">Open console <span aria-hidden="true">&nbsp;↗</span></a>
+        <button class="menu-button" type="button" aria-controls="nav-links" aria-expanded="false" aria-label="Toggle navigation">≡</button>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero shell">
+        <div class="hero-copy">
+          <span class="eyebrow"><i></i> Private compute, finally composed</span>
+          <h1>Every machine.<br />One <em>canvas.</em></h1>
+          <p>See your fleet, steer live work, and move Codex sessions between machines from one quiet command surface—without giving up control of your network.</p>
+          <div class="hero-actions"><a class="button" href="/">Launch Orchestra Canvas <span aria-hidden="true">&nbsp;→</span></a><a class="button button--ghost" href="#platform">Explore the platform</a></div>
+          <div class="trust-row"><span><i>✓</i> Tailscale-native</span><span><i>✓</i> Local-first</span><span><i>✓</i> End-to-end auditable</span></div>
+        </div>
+
+        <div class="product-wrap" aria-label="Orchestra Canvas product preview">
+          <div class="product">
+            <div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span>Orchestra Canvas / Live topology</span></div>
+            <div class="app-frame">
+              <aside class="mini-sidebar"><div class="mini-brand"><b>F</b> Orchestra Canvas</div><div class="side-label">COMMAND</div><div class="side-item"><i></i>Overview</div><div class="side-item active"><i></i>Canvas</div><div class="side-item"><i></i>Projects</div><div class="side-label">OPERATE</div><div class="side-item"><i></i>Jobs</div><div class="side-item"><i></i>Telemetry</div><div class="side-item"><i></i>Security</div></aside>
+              <div class="canvas">
+                <div class="canvas-head"><div><strong>Compute fabric</strong><span>5 nodes · private tailnet</span></div><span class="live-pill">● LIVE</span></div>
+                <div class="network"><i class="network-line line-a"></i><i class="network-line line-b"></i><i class="network-line line-c"></i><div class="node node-one"><b><i></i>Studio M4</b><small>macOS · ready</small><meter min="0" max="100" value="24"></meter></div><div class="node node-two"><b><i></i>5070 Ti</b><small>Windows · working</small><meter min="0" max="100" value="74"></meter></div><div class="node node-core"><b><i></i>Orchestra Core</b><small>Coordinator · healthy</small><meter min="0" max="100" value="42"></meter></div><div class="node node-three"><b><i></i>Model NAS</b><small>Storage · 14 TB free</small><meter min="0" max="100" value="61"></meter></div><div class="node node-four"><b><i></i>MacBook Pro</b><small>macOS · ready</small><meter min="0" max="100" value="17"></meter></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="status-card"><span>Nodes online</span><span>Active work</span><strong>5 / 5</strong><strong>12 jobs</strong></div>
+        </div>
+      </section>
+
+      <section class="proof shell" aria-label="Platform facts"><div><strong>100%</strong><span>Private network</span></div><div><strong>&lt;1s</strong><span>Live updates</span></div><div><strong>∞</strong><span>Workspaces</span></div><div><strong>1</strong><span>Command surface</span></div></section>
+
+      <section class="section shell" id="platform">
+        <div class="section-heading"><h2>Your hardware,<br />in concert.</h2><p>Orchestra Canvas turns a scattered collection of Macs, GPUs, servers, and storage into one legible operating system for compute. Every action stays visible, attributable, and under your control.</p></div>
+        <div class="feature-grid">
+          <article class="feature"><span class="feature-number">01 / TOPOLOGY</span><div class="feature-visual visual-fleet"><i></i><i></i><i></i></div><h3>See the whole fleet</h3><p>Live health, capacity, and active work across every enrolled machine in a single spatial view.</p></article>
+          <article class="feature"><span class="feature-number">02 / ORCHESTRATION</span><div class="feature-visual visual-codex"><i></i><i></i><i></i></div><h3>Move work, not context</h3><p>Launch jobs and continue Codex conversations on the machine best suited to finish them.</p></article>
+          <article class="feature" id="security"><span class="feature-number">03 / CONTROL</span><div class="feature-visual visual-guard"><i></i></div><h3>Private by construction</h3><p>Scoped access, explicit approvals, and a complete audit trail—inside the network you already trust.</p></article>
+        </div>
+      </section>
+
+      <section class="cta shell" id="start"><div><h2>Put your fleet on one canvas.</h2><p>Run it locally. Connect your machines. Keep every decision yours.</p></div><div class="cta-actions"><button class="button button--ghost copy-button" type="button" data-copy="npm run dev">Copy quick start</button><a class="button" href="/">Open console →</a></div></section>
+    </main>
+
+    <footer class="shell"><span>© <span id="year"></span> Orchestra Canvas</span><span>Private command and control for your compute fleet.</span></footer>
+    <script>
+      const menu = document.querySelector('.menu-button');
+      const links = document.querySelector('.nav-links');
+      menu.addEventListener('click', () => { const open = links.classList.toggle('open'); menu.setAttribute('aria-expanded', String(open)); menu.textContent = open ? '×' : '≡'; });
+      links.addEventListener('click', () => { links.classList.remove('open'); menu.setAttribute('aria-expanded', 'false'); menu.textContent = '≡'; });
+      const copy = document.querySelector('.copy-button');
+      copy.addEventListener('click', async () => { await navigator.clipboard.writeText(copy.dataset.copy); const label = copy.textContent; copy.textContent = 'Copied to clipboard'; copy.classList.add('copied'); window.setTimeout(() => { copy.textContent = label; copy.classList.remove('copied'); }, 1800); });
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

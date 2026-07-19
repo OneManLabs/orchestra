@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.fleetcanvas.agent</string>
+  <key>ProgramArguments</key>
+  <array><string>__INSTALL_DIR__/fleet-agent-service.sh</string></array>
+  <key>UserName</key><string>__SERVICE_USER__</string>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key>
+  <dict><key>SuccessfulExit</key><false/></dict>
+  <key>ThrottleInterval</key><integer>10</integer>
+  <key>ProcessType</key><string>Background</string>
+  <key>StandardOutPath</key><string>/var/log/fleet-canvas-agent.log</string>
+  <key>StandardErrorPath</key><string>/var/log/fleet-canvas-agent.log</string>
+  <key>EnvironmentVariables</key>
+  <dict><key>FLEET_SERVICE_ENV_FILE</key><string>__ENV_FILE__</string></dict>
+</dict>
+</plist>

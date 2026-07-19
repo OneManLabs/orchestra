@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+case "${1:-remove}" in
+  remove|deconfigure)
+    deb-systemd-invoke stop fleet-canvas-agent.service >/dev/null 2>&1 || true
+    deb-systemd-helper disable fleet-canvas-agent.service >/dev/null 2>&1 || true
+    ;;
+  upgrade|failed-upgrade) deb-systemd-invoke stop fleet-canvas-agent.service >/dev/null 2>&1 || true ;;
+esac

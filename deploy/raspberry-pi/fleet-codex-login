@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
+id fleet-agent >/dev/null 2>&1 || { echo "Fleet Agent has not been installed yet." >&2; exit 1; }
+install -d -m 0700 -o fleet-agent -g fleet-agent /var/lib/fleet-canvas-agent/.codex
+
+echo "Starting Codex device-code authentication for the Fleet Agent identity."
+echo "Never share the 9-character device code."
+runuser -u fleet-agent -- env \
+  HOME=/var/lib/fleet-canvas-agent \
+  CODEX_HOME=/var/lib/fleet-canvas-agent/.codex \
+  /usr/local/bin/codex login --device-auth
+systemctl restart fleet-canvas-agent.service
+runuser -u fleet-agent -- env \
+  HOME=/var/lib/fleet-canvas-agent \
+  CODEX_HOME=/var/lib/fleet-canvas-agent/.codex \
+  /usr/local/bin/codex login status

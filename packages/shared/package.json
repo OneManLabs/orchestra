@@ -1,0 +1,14 @@
+{
+  "name": "@fleet/shared",
+  "version": "2.0.0",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.25.67"
+  }
+}

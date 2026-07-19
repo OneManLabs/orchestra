@@ -1,0 +1,95 @@
+name: Agent unsigned development bundle candidates
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: SemVer release version
+        required: true
+      channel:
+        type: choice
+        options: [development, beta, stable]
+        default: development
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: macos
+          - os: windows-latest
+            platform: windows
+          - os: ubuntu-latest
+            platform: linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Validate candidate version and channel
+        shell: bash
+        run: |
+          node -e "const expected=require('./packages/agent/package.json').version; const requested=process.argv[1]; if (requested !== expected) { console.error('Requested version '+requested+' does not match Agent package version '+expected+'.'); process.exit(1); }" "${{ inputs.version }}"
+          if [ "${{ inputs.channel }}" != development ]; then
+            echo "This workflow only produces unsigned development runtime bundles. Beta and stable releases require platform packaging, signing, notarization/repository signing, and verification stages that are intentionally external to this repository."
+            exit 1
+          fi
+      - run: npm run typecheck -w @fleet/agent
+      - run: npm test -w @fleet/agent
+      - run: npm run build -w @fleet/agent
+      - run: node packages/agent/install/build-bundle.mjs --out dist/installers/fleet-agent-${{ matrix.platform }}-${{ inputs.version }}
+      - name: Install WiX
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: dotnet tool install --global wix --version 5.0.2
+      - name: Download and verify WinSW
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $url = 'https://github.com/winsw/winsw/releases/download/v2.12.0/WinSW-x64.exe'
+          $output = 'dist/installers/WinSW-x64.exe'
+          Invoke-WebRequest -Uri $url -OutFile $output
+          $expected = '05b82d46ad331cc16bdc00de5c6332c1ef818df8ceefcd49c726553209b3a0da'
+          $actual = (Get-FileHash -Algorithm SHA256 $output).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw "WinSW checksum mismatch: $actual" }
+      - name: Build Windows MSI
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: >-
+          ./packages/agent/install/windows/build-msi.ps1
+          -Bundle dist/installers/fleet-agent-windows-${{ inputs.version }}
+          -WinSw dist/installers/WinSW-x64.exe
+          -Version ${{ inputs.version }}
+          -Output dist/installers/fleet-canvas-agent-${{ inputs.version }}-x64.msi
+      - name: Build macOS PKG
+        if: runner.os == 'macOS'
+        shell: bash
+        run: >-
+          packages/agent/install/macos/build-pkg.sh
+          dist/installers/fleet-canvas-agent-${{ inputs.version }}.pkg
+          dist/installers/fleet-agent-macos-${{ inputs.version }}
+      - name: Install RPM build tools
+        if: runner.os == 'Linux'
+        shell: bash
+        run: sudo apt-get update && sudo apt-get install -y rpm
+      - name: Build Linux DEB and RPM
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          packages/agent/install/linux/deb/build-deb.sh dist/installers/fleet-agent-linux-${{ inputs.version }} dist/installers/fleet-canvas-agent_${{ inputs.version }}_$(dpkg --print-architecture).deb
+          packages/agent/install/linux/rpm/build-rpm.sh dist/installers/fleet-agent-linux-${{ inputs.version }} dist/installers
+      - name: Package inventory
+        shell: bash
+        run: find dist/installers -maxdepth 2 -type f -print | sort
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fleet-agent-${{ matrix.platform }}-${{ inputs.version }}
+          path: dist/installers/**
+          if-no-files-found: error
+          retention-days: 7

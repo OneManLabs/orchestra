@@ -1,0 +1,73 @@
+name: fleet-canvas
+
+services:
+  core:
+    build:
+      context: ..
+      dockerfile: deploy/docker/core.Dockerfile
+    image: fleet-canvas/core:2.0.0
+    restart: unless-stopped
+    init: true
+    environment:
+      FLEET_HOST: 0.0.0.0
+      FLEET_PORT: 4780
+      FLEET_TOKEN_FILE: /run/secrets/fleet_token
+      FLEET_MASTER_KEY_FILE: /run/secrets/fleet_master_key
+      FLEET_PUBLIC_URL: ${FLEET_PUBLIC_URL:?Set the operator-visible Core URL}
+      FLEET_BACKUP_INTERVAL_HOURS: ${FLEET_BACKUP_INTERVAL_HOURS:-24}
+      FLEET_BACKUP_RETENTION_COUNT: ${FLEET_BACKUP_RETENTION_COUNT:-14}
+    ports:
+      - "${FLEET_BIND_ADDRESS:-127.0.0.1}:4780:4780"
+    volumes:
+      - core-data:/var/lib/fleet-canvas
+      - ${FLEET_STORAGE_ROOT:-./storage}:/storage
+    secrets:
+      - fleet_token
+      - fleet_master_key
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+
+  agent:
+    profiles: ["local-agent"]
+    build:
+      context: ..
+      dockerfile: deploy/docker/agent.Dockerfile
+    image: fleet-canvas/agent:2.0.0
+    restart: unless-stopped
+    init: true
+    depends_on:
+      core:
+        condition: service_healthy
+    environment:
+      FLEET_CORE_URL: http://core:4780
+      FLEET_TOKEN_FILE: /run/secrets/fleet_token
+      FLEET_DEVICE_NAME: ${FLEET_DEVICE_NAME:-container-worker}
+      FLEET_DEVICE_ROLE: worker
+      FLEET_PROJECT_ROOTS: /workspaces
+    volumes:
+      - agent-data:/var/lib/fleet-canvas/agent
+      - ${FLEET_PROJECT_ROOT:-../}:/workspaces
+    secrets:
+      - fleet_token
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+
+volumes:
+  core-data:
+  agent-data:
+
+secrets:
+  fleet_token:
+    environment: FLEET_TOKEN
+  fleet_master_key:
+    environment: FLEET_MASTER_KEY

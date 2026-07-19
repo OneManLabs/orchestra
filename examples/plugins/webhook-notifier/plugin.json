@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "com.fleetcanvas.example.webhook-notifier",
+  "name": "Webhook notifier example",
+  "version": "1.0.0",
+  "description": "Example least-privilege notification plugin.",
+  "publisher": "Fleet Canvas",
+  "entrypoint": "./index.js",
+  "capabilities": ["notification"],
+  "minimumFleetVersion": "2.0.0",
+  "permissions": {
+    "networkDomains": ["hooks.example.invalid"],
+    "filesystemRoots": [],
+    "secretNames": ["webhook-url"],
+    "fleetScopes": ["notifications:send"]
+  }
+}

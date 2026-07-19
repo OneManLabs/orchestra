@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleDevelopmentRegion</key><string>en</string>
+  <key>CFBundleDisplayName</key><string>Orchestra Voice Capture</string>
+  <key>CFBundleExecutable</key><string>Codex Micro Voice</string>
+  <key>CFBundleIdentifier</key><string>com.fleetcanvas.desktop.codex-micro-voice</string>
+  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+  <key>CFBundleName</key><string>Codex Micro Voice</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>2.0.0</string>
+  <key>CFBundleVersion</key><string>2</string>
+  <key>LSBackgroundOnly</key><true/>
+  <key>NSMicrophoneUsageDescription</key><string>Orchestra Canvas records the system-selected microphone when the Codex Micro MIC key is active.</string>
+  <key>NSSpeechRecognitionUsageDescription</key><string>Orchestra Canvas transcribes Codex Micro voice prompts with Apple Speech Recognition.</string>
+</dict>
+</plist>

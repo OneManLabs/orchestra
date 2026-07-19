@@ -1,0 +1,28 @@
+[Unit]
+Description=Fleet Canvas Core
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fleet
+Group=fleet
+EnvironmentFile=/etc/fleet-canvas/core.env
+ExecStart=/opt/fleet-canvas/bin/fleet-core --host 0.0.0.0 --data-dir /var/lib/fleet-canvas
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/fleet-canvas
+
+[Install]
+WantedBy=multi-user.target

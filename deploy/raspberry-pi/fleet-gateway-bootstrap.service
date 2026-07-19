@@ -1,0 +1,16 @@
+[Unit]
+Description=Provision Fleet Canvas Raspberry Pi gateway
+Wants=network-online.target
+After=network-online.target cloud-final.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/fleet-gateway-bootstrap
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=60
+TimeoutStartSec=infinity
+
+[Install]
+WantedBy=multi-user.target

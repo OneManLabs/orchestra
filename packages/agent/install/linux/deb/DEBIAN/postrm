@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+if [ "${1:-}" = purge ]; then
+  created_user=false
+  [ -f /etc/fleet-canvas/.deb-created-user ] && created_user=true
+  rm -rf /etc/fleet-canvas /var/lib/fleet-canvas-agent
+  if [ "$created_user" = true ]; then
+    deluser fleet-agent >/dev/null 2>&1 || true
+    delgroup fleet-agent >/dev/null 2>&1 || true
+  fi
+fi
+if [ "${1:-}" = purge ]; then deb-systemd-helper purge fleet-canvas-agent.service >/dev/null 2>&1 || true; fi

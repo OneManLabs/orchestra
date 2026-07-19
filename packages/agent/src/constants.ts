@@ -1,0 +1,8 @@
+export const AGENT_VERSION = '2.0.0';
+export const PROTOCOL_VERSION = 2;
+export const DEFAULT_CORE_URL = 'http://127.0.0.1:4780';
+export const DEFAULT_HEARTBEAT_INTERVAL_MS = 5_000;
+export const MIN_HEARTBEAT_INTERVAL_MS = 1_000;
+export const MAX_HEARTBEAT_INTERVAL_MS = 300_000;
+export const DEFAULT_MAX_FILE_CHUNK_BYTES = 1024 * 1024;
+export const DEFAULT_MAX_UPDATE_BYTES = 1024 * 1024 * 1024;

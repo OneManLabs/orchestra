@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+environment_file=${1:?Missing Core environment file}
+binary=${2:?Missing Fleet Core binary}
+shift 2
+
+if [ ! -f "$environment_file" ] || [ -L "$environment_file" ]; then
+  echo "Fleet Core environment file must be a regular, non-symlink file: $environment_file" >&2
+  exit 78
+fi
+owner=$(stat -f '%Su' "$environment_file")
+mode=$(stat -f '%Lp' "$environment_file")
+if [ "$owner" != root ] || [ "$mode" -gt 600 ]; then
+  echo "Fleet Core environment file must be owned by root and have mode 0600 or stricter." >&2
+  exit 78
+fi
+
+umask 077
+set -a
+# The file is trusted administrator configuration and may contain shell-style assignments.
+. "$environment_file"
+set +a
+
+exec "$binary" "$@"

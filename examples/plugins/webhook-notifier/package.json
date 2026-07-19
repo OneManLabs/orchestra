@@ -1,0 +1,10 @@
+{
+  "name": "@fleet-example/webhook-notifier",
+  "version": "1.0.0",
+  "private": true,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@fleet/plugin-sdk": "2.0.0"
+  }
+}

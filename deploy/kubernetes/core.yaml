@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fleet-core-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleet-core
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: { app: fleet-core }
+  template:
+    metadata:
+      labels: { app: fleet-core }
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: core
+          image: fleet-canvas/core:2.0.0
+          ports:
+            - { name: http, containerPort: 4780 }
+          envFrom:
+            - secretRef: { name: fleet-core-secrets }
+          env:
+            - { name: FLEET_HOST, value: "0.0.0.0" }
+            - { name: FLEET_DATA_DIR, value: "/var/lib/fleet-canvas" }
+            - name: FLEET_PUBLIC_URL
+              valueFrom:
+                configMapKeyRef: { name: fleet-core-config, key: public-url }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/fleet-canvas }
+            - { name: tmp, mountPath: /tmp }
+          readinessProbe:
+            exec:
+              command: ["node", "-e", "fetch('http://127.0.0.1:4780/api/health',{headers:{authorization:'Bearer '+process.env.FLEET_TOKEN}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["node", "-e", "fetch('http://127.0.0.1:4780/api/health',{headers:{authorization:'Bearer '+process.env.FLEET_TOKEN}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: fleet-core-data }
+        - name: tmp
+          emptyDir: { sizeLimit: 128Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleet-core
+spec:
+  selector: { app: fleet-core }
+  ports:
+    - { name: http, port: 4780, targetPort: http }

@@ -1,0 +1,12 @@
+{
+  "FLEET_CORE_URL": "https://fleet-core.example.ts.net:4780",
+  "FLEET_DEVICE_ROLE": "worker",
+  "FLEET_DEVICE_NAME": "build-worker-01",
+  "FLEET_PROJECT_ROOTS": "D:\\FleetProjects;Z:\\SharedProjects",
+  "FLEET_CODEX_COMMAND": "C:\\Tools\\Codex\\codex.exe",
+  "CODEX_HOME": "C:\\ProgramData\\Fleet Canvas\\codex",
+  "FLEET_ENROLLMENT_TOKEN": "replace-with-a-one-time-enrollment-token",
+  "FLEET_ALLOW_POWER_ACTIONS": "false",
+  "FLEET_PREVENT_SLEEP_DURING_JOBS": "true",
+  "FLEET_REQUIRE_SIGNED_UPDATES": "true"
+}
