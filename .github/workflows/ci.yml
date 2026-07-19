@@ -24,7 +24,10 @@ jobs:
       - run: npm ci
       - run: npm run audit:publication
       - run: npm run typecheck
-      - run: npm test
+      - if: runner.os != 'Windows'
+        run: npm test
+      - if: runner.os == 'Windows'
+        run: npm run test:portable
       - run: npm run build
       - run: npm audit --audit-level=high
 

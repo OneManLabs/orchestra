@@ -21,6 +21,7 @@
     "audit:publication": "node scripts/audit-publication.mjs",
     "typecheck": "npm run build -w @fleet/shared && npm run build -w @fleet/sdk && npm run typecheck -ws --if-present",
     "test": "npm run test -ws --if-present",
+    "test:portable": "npm run test -w @fleet/desktop && npm run test -w @fleet/mcp && npm run test -w @fleet/plugin-sdk && npm run test -w @fleet/sdk && npm run test -w @fleet/shared && npm run test -w @fleet/simulator",
     "start:core": "npm run start -w @fleet/core",
     "start:agent": "npm run start -w @fleet/agent",
     "start:mcp": "npm run dev -w @fleet/mcp --",
