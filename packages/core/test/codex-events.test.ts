@@ -54,6 +54,20 @@ describe('Codex event normalization', () => {
     await store.close();
   });
 
+  it('starts a new assistant bubble after command activity in the same turn', async () => {
+    const { store, session } = await fixture();
+    applyCodexMessage(store, session, { method: 'turn/started', params: { turn: { id: 'turn-command' } } });
+    applyCodexMessage(store, session, { method: 'item/agentMessage/delta', params: { delta: 'I will check that.' } });
+    applyCodexMessage(store, session, { method: 'item/started', params: { item: { id: 'cmd', type: 'commandExecution', command: 'npm test' } } });
+    applyCodexMessage(store, session, { method: 'item/agentMessage/delta', params: { delta: 'The tests passed.' } });
+
+    expect(session.events.filter((event) => event.type === 'assistant').map((event) => event.text)).toEqual([
+      'I will check that.',
+      'The tests passed.',
+    ]);
+    await store.close();
+  });
+
   it('keeps the active turn boundary on assistant and web-search events', async () => {
     const { store, session } = await fixture();
     applyCodexMessage(store, session, { method: 'turn/started', params: { turn: { id: 'turn-web' } } });

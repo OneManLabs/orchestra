@@ -151,6 +151,10 @@ function appendOrMergeDelta(
       // A newly started turn is a hard transcript boundary even if a broken
       // or test app-server accidentally reuses a turn identifier.
       if (event.method === 'turn/started') break;
+      // Tool activity separates visible assistant message segments. A later
+      // stream must render as a new bubble instead of being appended to text
+      // that appeared before a command, file change, plan, or tool call.
+      if (['command', 'file', 'tool', 'plan'].includes(event.type)) break;
       if (event.type === type && event.method === method && stringAt(record(event.data), 'turnId') === turnId) {
         sameTurn = event;
         break;
