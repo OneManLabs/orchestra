@@ -1068,7 +1068,11 @@ function handleMenuBarToggleRequest(): void {
   }
   pendingMenuBarToggle = false;
   if (menuBarWindow.isVisible()) menuBarWindow.hide();
-  else showMenuBarWhenTrayReady();
+  // Requests from the native AppKit status item do not have Electron tray
+  // bounds. On affected macOS/Electron combinations getBounds() remains at
+  // the bottom-left startup sentinel, so waiting for it adds a two-second
+  // delay on every click. Use the deterministic top-right anchor immediately.
+  else showMenuBarWindow(resolvedMenuBarAnchor());
 }
 
 function trayContextMenu(): Menu {
