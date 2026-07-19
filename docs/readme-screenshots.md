@@ -19,6 +19,10 @@ Create PNG files in `docs/images/`:
 1. `fleet-canvas.png` — the main Canvas with six to eight synthetic devices.
 2. `orchestra-system.png` — the synthetic Core-owned system conversation.
 3. `codex-command-center.png` — the Codex command interface using a synthetic device and generic workspace.
+4. `codex-device-mentions.png` — the Codex device picker demonstrating `@` routing with synthetic device names.
+5. `codex-slash-commands.png` — the Codex `/` command palette using a generic workspace and operator identity.
+
+Public screenshot identities are replaced with `Demo Operator`. Any local address or username visible in a source capture must be cropped or blurred before the image is added to this directory.
 
 ## Safe demo data
 

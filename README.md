@@ -39,6 +39,14 @@ Orchestra is designed for homelabs, independent developers, researchers, creator
 
 ![Codex command center showing model, permission, plan, memory, and review controls](docs/images/codex-command-center.png)
 
+### Route work with `@` device mentions
+
+![Codex device picker showing synthetic Orchestra devices selected with an at mention](docs/images/codex-device-mentions.png)
+
+### Control the session with `/` commands
+
+![Codex slash-command palette showing model, permission, plan, memory, and review controls](docs/images/codex-slash-commands.png)
+
 ### See the whole fleet
 
 Live topology, health, availability, hardware, storage, network, power state, maintenance state, and Tailscale identity are presented in one operational view. Production screens do not invent devices or metrics; a device appears only after a real Agent connects.
