@@ -6,7 +6,7 @@ WORKDIR /workspace
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY packages/shared/package.json packages/shared/package.json
 COPY packages/agent/package.json packages/agent/package.json
-RUN npm ci --include=dev --workspace @fleet/agent --workspace @fleet/shared
+RUN npm ci --include=dev --include-workspace-root --workspace @fleet/agent --workspace @fleet/shared
 COPY packages/shared packages/shared
 COPY packages/agent packages/agent
 RUN npm run build --workspace @fleet/shared \
