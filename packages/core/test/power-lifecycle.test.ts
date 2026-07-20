@@ -105,7 +105,7 @@ describe('automatic power lifecycle', () => {
 
     instance.store.state.v2.deviceProfiles.find((item) => item.deviceId === 'gpu')!.maintenanceMode = false;
     await target.waitFor((message) => message.type === 'device.power' && message.payload.action === 'shutdown', 3_000);
-    expect(instance.store.state.v2.audit.some((entry) => entry.action === 'device.power.idle-shutdown' && entry.resourceId === 'gpu' && entry.outcome === 'success')).toBe(true);
+    await waitUntil(() => instance.store.state.v2.audit.some((entry) => entry.action === 'device.power.idle-shutdown' && entry.resourceId === 'gpu' && entry.outcome === 'success'));
   }, 20_000);
 
   it('keeps an explicitly targeted offline job queued during quiet hours, then wakes it when retried after quiet hours', async () => {
