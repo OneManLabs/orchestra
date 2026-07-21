@@ -4,77 +4,69 @@
 
 # Orchestra
 
-### One private command center for every computer you own.
+### One private control center for all your computers.
 
-Run jobs where the right hardware lives, open remote Codex sessions on any enrolled machine, move artifacts between devices, and understand the health of your whole fleet without exposing it to the public internet.
+Run work on the correct device. Start Codex sessions where the files are. Move files between devices. Monitor the complete compute fleet.
 
-[Quick start](#quick-start) · [Tailscale deployment](#recommended-tailscale-deployment) · [Security](#security-model) · [Documentation](#documentation) · [Commercial use](COMMERCIAL-LICENSE.md)
+[Quick start](#quick-start) · [Tailscale setup](#tailscale-setup) · [Security](#security) · [Documentation](#documentation) · [Commercial use](COMMERCIAL-LICENSE.md)
 
 </div>
 
 > [!IMPORTANT]
-> Orchestra is **source-available, noncommercial software**. Evaluation, education, personal projects, and qualifying nonprofit uses are permitted under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). Any business use requires prior written permission and separately agreed terms from [One Man Labs](https://www.onemanlabs.org/).
+> Orchestra is source-available software for noncommercial use. The [PolyForm Noncommercial License 1.0.0](LICENSE.md) permits evaluation, education, personal projects, and qualifying nonprofit use. Business use requires written permission and separate terms from [One Man Labs](https://www.onemanlabs.org/).
 
-## Why Orchestra?
+## Purpose
 
-Most people with more than one serious computer eventually build the same collection of scripts, dashboards, SSH aliases, shared folders, and half-remembered commands. Orchestra turns that collection into an operating layer.
+Many users control several computers with scripts, dashboards, SSH aliases, and shared folders. Orchestra replaces these separate tools with one control layer.
 
-From one responsive interface you can see what is online, choose where work should run, launch a real Codex session in the correct workspace, approve sensitive actions, transfer artifacts, inspect telemetry, and control device power. The Core coordinates the fleet, while each Agent keeps execution, credentials, files, and compute on its own machine.
+Use Orchestra to do these tasks:
 
-Orchestra is designed for homelabs, independent developers, researchers, creators, and small private compute fleets that span Macs, Windows or Linux workstations, GPU boxes, NAS systems, and Raspberry Pi gateways.
+- See the status of each device.
+- Select the device that must do the work.
+- Start a Codex session in the correct workspace.
+- Approve sensitive operations.
+- Move files and artifacts.
+- Monitor hardware and jobs.
+- Control device power.
 
-## Product tour
+Orchestra Core coordinates the fleet. Each Orchestra Agent controls its local files, credentials, processes, and compute.
 
-> Screenshots are captured from the isolated synthetic simulator—not from a real fleet. The privacy-safe capture workflow is documented in [`docs/readme-screenshots.md`](docs/readme-screenshots.md).
+Orchestra is for homelabs and private compute fleets. It supports macOS, Windows, Linux, NAS devices, GPU computers, and Raspberry Pi gateways.
 
-### Live Orchestra canvas
+## Product images
 
-![Orchestra canvas showing eight synthetic devices and live activity](docs/images/fleet-canvas.png)
+The images use synthetic data. They do not show a real fleet. Read [the screenshot procedure](docs/readme-screenshots.md) for more information.
 
-### Conversational fleet control
+### Orchestra Canvas
 
-![Orchestra System answering a synthetic device telemetry question](docs/images/orchestra-system.png)
+![Orchestra Canvas with eight synthetic devices](docs/images/fleet-canvas.png)
 
-### Device-hosted Codex controls
+### Orchestra System
 
-### Route work with `@` device mentions
+![Orchestra System with a synthetic telemetry response](docs/images/orchestra-system.png)
 
-![Codex device picker showing synthetic Orchestra devices selected with an at mention](docs/images/codex-device-mentions.png)
+### Device selection with `@`
 
-### Control the session with `/` commands
+![Codex device selection with synthetic Orchestra devices](docs/images/codex-device-mentions.png)
 
-![Codex slash-command palette showing model, permission, plan, memory, and review controls](docs/images/codex-slash-commands.png)
+### Session commands with `/`
 
-### See the whole fleet
+![Codex command list with model and permission controls](docs/images/codex-slash-commands.png)
 
-Live topology, health, availability, hardware, storage, network, power state, maintenance state, and Tailscale identity are presented in one operational view. Production screens do not invent devices or metrics; a device appears only after a real Agent connects.
+## Main functions
 
-### Put work on the right machine
-
-Orchestra scores compatible devices using availability, load, queue depth, locality, role, maintenance state, cost, power, and temperature. Jobs and pipeline steps stay observable from submission through completion.
-
-### Take Codex to the compute and the files
-
-Interactive Codex sessions run through the installed Codex app-server on the selected Agent. That machine keeps its own authentication, filesystem, tools, skills, and compute. Sessions support structured approvals, model and reasoning controls, Plan mode, steering, review, compaction, goals, plugins, MCP, and device-aware agent teams.
-
-### Operate without flattening the safety rails
-
-Scoped API tokens, device-bound credentials, encrypted secrets, confined file roots, SSRF controls, policy checks, audit chaining, and explicit approval boundaries are built into the control plane. Destructive host actions require both Agent opt-in and an authorized request.
-
-## What ships
-
-| Area | Included |
+| Area | Functions |
 | --- | --- |
-| Orchestra control | Live topology, groups and sites, hardware discovery, trust and maintenance state, bulk selection |
-| Codex | Remote structured sessions, approvals, tools, skills, MCP, plugins, goals, reviews, session mobility |
-| Jobs and pipelines | Scheduling, DAG execution, conditional edges, retries, timeouts, approvals, cancellation |
-| Files and artifacts | Confined browsing, resumable transfer, integrity checks, lineage, NAS-backed storage |
-| Operations | Telemetry, alerts, diagnostics, audit records, backups, update rollouts and rollback |
-| Power | Wake-on-LAN relays, guarded sleep/restart/shutdown/lock/logout, idle lifecycle policies |
-| Clients | Electron desktop, responsive PWA, native macOS menu bar, native iOS client |
-| Hardware controls | Work Louder Codex Micro session controls, status lighting, dial and joystick mappings, push-to-talk |
-| Extensibility | REST/OpenAPI, TypeScript SDK, Python SDK, MCP gateway, webhooks, plugin contracts |
-| Deployment | Docker Compose, Kubernetes, launchd, systemd, native Agent packaging assets |
+| Fleet control | Topology, groups, sites, hardware, trust, maintenance, and bulk selection |
+| Codex | Remote sessions, approvals, tools, skills, MCP, plugins, goals, reviews, and session transfer |
+| Jobs | Scheduling, pipelines, conditions, retries, time limits, approvals, and cancellation |
+| Files | Restricted browsing, restartable transfer, integrity checks, history, and NAS storage |
+| Operations | Telemetry, alerts, diagnostics, audit data, backups, and update control |
+| Power | Wake-on-LAN, sleep, restart, shutdown, lock, logout, and idle rules |
+| Clients | Electron, responsive PWA, macOS menu bar, and native iOS |
+| Hardware | Work Louder Codex Micro controls, lights, dial, joystick, and push-to-talk |
+| Interfaces | REST, OpenAPI, TypeScript SDK, Python SDK, MCP, webhooks, and plugins |
+| Deployment | Docker Compose, Kubernetes, launchd, systemd, and native Agent packages |
 
 ## Architecture
 
@@ -94,70 +86,71 @@ flowchart LR
     TS --- A3
 ```
 
-- **Core** owns fleet identity, live state, scheduling, policy, approvals, audit, enrollment, and routing.
-- **Agents** own device-local execution, files, credentials, previews, telemetry, and power integrations.
-- **Clients** present the Canvas and call Core using a recovery credential or, preferably, a least-privilege scoped token.
-- **Tailscale** provides private network reachability. Orchestra still performs its own authentication and authorization.
+- Core owns fleet identity, state, scheduling, policy, approvals, audit data, enrollment, and routing.
+- Agents own local execution, files, credentials, previews, telemetry, and power control.
+- Clients show Orchestra Canvas and send requests to Core.
+- Tailscale gives private network access.
+- Orchestra still uses its own authentication and authorization.
 
-See [Architecture](docs/architecture.md) for trust boundaries and protocol details.
+Read [Architecture](docs/architecture.md) for protocol and trust-boundary data.
 
 ## Requirements
 
-- Node.js 22 or newer
-- npm 10 or newer
+- Node.js 22 or a newer version
+- npm 10 or a newer version
 - Git
-- Native build tools required by `node-pty` on the current platform
-- Codex installed and authenticated on each device that will run Codex sessions
-- Tailscale on participating devices for the recommended private deployment
+- Native build tools for `node-pty`
+- Codex on each device that runs Codex sessions
+- Tailscale for the recommended private setup
 
-Docker is optional. Xcode is required only for the native iOS client.
+Docker is optional. Xcode is necessary only for the iOS client.
 
 ## Quick start
 
-This path is for local evaluation on one machine.
+Use this procedure for an evaluation on one computer.
 
 ```bash
-git clone <your-fork-or-repository-url>
-cd fleet
+git clone <repository-url>
+cd orchestra
 npm install
 npm run dev
 ```
 
-The development desktop starts loopback Core and Agent processes. The current machine should appear after the Agent connects.
+The development application starts a local Core and Agent. The device appears after the Agent connects.
 
-To run the responsive browser client during local development:
+To start the browser client, use this command:
 
 ```bash
 npm run dev:web
 ```
 
-`dev:web` deliberately enables unauthenticated **loopback-only** development access behind Vite's local proxy. Never reuse that flag behind a reverse proxy, Tailscale Serve, a LAN listener, or any shared endpoint.
+`dev:web` permits access without authentication only through the local Vite proxy. Do not use this option with a shared endpoint.
 
-To populate a development Core with synthetic devices:
+To add synthetic devices, use this command:
 
 ```bash
 FLEET_TOKEN='<development-recovery-token>' npm run dev:simulator -- --count 8 --prefix demo-node
 ```
 
-The simulator is explicitly development-only and cannot perform real file, power, desktop, or Codex operations.
+The simulator cannot do real file, power, desktop, or Codex operations.
 
-For an isolated documentation environment that cannot touch normal Orchestra state, run:
+For an isolated documentation system, use this command:
 
 ```bash
 npm run demo:readme
 ```
 
-This allocates temporary state and unused loopback ports, starts only a demo Core, synthetic simulator, and web client, and removes the state when stopped.
+This command uses temporary state and unused loopback ports. It removes the temporary state when it stops.
 
-## Recommended Tailscale deployment
+## Tailscale setup
 
-Orchestra should remain on a private tailnet. Do not port-forward Core, and do not expose it with Tailscale Funnel.
+Keep Orchestra on a private tailnet. Do not use router port forwarding. Do not use Tailscale Funnel for Core.
 
-### 1. Join the tailnet
+### 1. Connect the devices
 
-Install [Tailscale](https://tailscale.com/docs/install) on the Core host, every Agent host, and every client device that needs access. Confirm the devices can reach one another before configuring Orchestra.
+Install [Tailscale](https://tailscale.com/docs/install) on Core, all Agent devices, and all client devices. Make sure that the devices can connect to each other.
 
-For new tailnets, use Tailscale [grants](https://tailscale.com/docs/features/access-control/grants) to restrict who can reach the Core and Agent services. Tailscale recommends grants for new policies; an otherwise unmodified tailnet may begin with broad allow-all connectivity.
+Use Tailscale grants to limit access to Core and Agent services.
 
 ### 2. Build Orchestra
 
@@ -166,18 +159,20 @@ npm install
 npm run build
 ```
 
-### 3. Generate independent secrets
+### 3. Make two secrets
 
 ```bash
 openssl rand -hex 32
 openssl rand -base64 32
 ```
 
-Use the first value as `FLEET_TOKEN` and the second as `FLEET_MASTER_KEY`. Store them in a password manager, protected secret file, Keychain, or container secret. Do not paste real values into source files, shell history, screenshots, issues, or chat logs.
+Use the first value for `FLEET_TOKEN`. Use the second value for `FLEET_MASTER_KEY`.
 
-### 4. Start Core on the always-on host
+Keep both values in a password manager or another secret store. Do not put real values in source files, screenshots, issues, or chat logs.
 
-The example below keeps Core on loopback so Tailscale Serve can provide private HTTPS. Replace the example MagicDNS name with the one Tailscale assigns to the Core device.
+### 4. Start Core
+
+Keep Core on loopback. Let Tailscale Serve supply private HTTPS.
 
 ```bash
 FLEET_HOST='127.0.0.1' \
@@ -188,20 +183,18 @@ FLEET_MASTER_KEY='<vault-key>' \
 npm run start:core
 ```
 
-In a separate administrator shell on that device:
+In a different administrator shell, use these commands:
 
 ```bash
 tailscale serve --bg 4780
 tailscale serve status
 ```
 
-[Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) makes the loopback service available over HTTPS **inside the tailnet**. Verify the reported URL matches `FLEET_PUBLIC_URL`. Serve and Funnel are different: Funnel is public and is not recommended for Orchestra Core.
-
-If you choose to bind Core directly to a Tailscale IP instead, use application TLS whenever traffic leaves loopback and restrict port `4780` with tailnet grants.
+Make sure that the reported URL is equal to `FLEET_PUBLIC_URL`.
 
 ### 5. Enroll an Agent
 
-Create a short-lived, one-use enrollment token from Desktop or through the API:
+Make a short-life, one-use enrollment token:
 
 ```bash
 curl --fail-with-body \
@@ -211,7 +204,7 @@ curl --fail-with-body \
   https://fleet-core.example-tailnet.ts.net/api/v2/enrollment/tokens
 ```
 
-Use the returned plaintext token once on the device being enrolled:
+Use the returned token one time on the Agent device:
 
 ```bash
 FLEET_CORE_URL='https://fleet-core.example-tailnet.ts.net' \
@@ -221,117 +214,84 @@ FLEET_PROJECT_ROOTS='/path/to/projects,/path/to/mounted-storage' \
 npm run start:agent
 ```
 
-The Agent exchanges that token for a device-bound credential and stores it in its private state directory. Do not reuse enrollment tokens as ordinary API credentials.
+The Agent gets a device credential and stores it in its private state directory.
 
 ### 6. Connect a client
 
-Point Desktop or iOS at the Core HTTPS URL. Use a narrowly scoped API token for routine access and reserve the recovery token for break-glass administration.
+Enter the Core HTTPS URL in Desktop or iOS. Use a restricted API token for normal work. Keep the recovery token for emergency administration.
 
-For a separately hosted PWA, follow [Web client deployment](docs/web-client.md). The web build never embeds an Orchestra credential; browser tokens remain in memory and are discarded on refresh.
+Read [Web client deployment](docs/web-client.md) if the PWA has a separate host.
 
-## Native iOS app
+## iOS client
 
-The repository includes a native SwiftUI iPhone client under [`apps/ios`](apps/ios). It is not a web wrapper: it uses iOS navigation, sheets, Dynamic Type, touch-sized controls, Keychain storage, biometric/passcode confirmation, QR enrollment, and foreground WebSocket reconnection.
+The repository contains a native SwiftUI client in [`apps/ios`](apps/ios). It uses iOS navigation, Keychain storage, device authentication, QR enrollment, and WebSocket reconnection.
 
-The iOS client supports:
+The client supports these functions:
 
-- Mission health, fleet capacity, device lists, and live telemetry
-- Wake, lock, sleep, restart, and shutdown controls
-- Job submission, output, retry, and cancellation
-- Codex session chat, permission changes, approvals, interrupt, stop, and resume
-- Alerts, notifications, and the approval inbox
-- Manual or QR-based Core enrollment over a private Tailscale connection
+- Fleet status and telemetry
+- Device power controls
+- Job control and output
+- Codex sessions and approvals
+- Alerts and notifications
+- Manual and QR enrollment
 
-### Build and test iOS
+Read the [iOS installation guide](apps/ios/README.md).
 
-Requirements are Xcode 26 or newer, XcodeGen 2.44.1 or newer, and an iOS 18-or-newer simulator or device.
+## Codex Micro
 
-```bash
-cd apps/ios
-xcodegen generate
-xcodebuild \
-  -project FleetCanvas.xcodeproj \
-  -scheme FleetCanvas \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-  test
-```
+The macOS application can use the [Work Louder Codex Micro](https://worklouder.cc/). The device can select sessions, answer approval requests, change session modes, start push-to-talk, and run configured actions.
 
-[`project.yml`](apps/ios/project.yml) is the source of truth, while the generated Xcode project is checked in so the app can be opened immediately. The repository also includes unit and live UI test targets.
+Open **Settings → Codex Micro** to enable it. macOS can ask for Input Monitoring, Microphone, and Speech Recognition access.
 
-### Connect iOS securely
+Codex Micro controls do not bypass Core policy, Agent limits, or operating-system permissions.
 
-Enter the private HTTPS Core URL or scan an Orchestra enrollment QR code. Use a least-privilege scoped API token rather than the recovery token. Credentials are stored with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`; Release builds require HTTPS, while Debug builds may use private Tailscale-range HTTP addresses for development.
+## macOS menu bar
 
-Live UI tests read `FLEET_TEST_CORE_URL` and `FLEET_TEST_TOKEN` only from the test-process environment. When those variables are absent, live tests skip instead of falling back to embedded credentials or sample fleet data. See the complete [iOS build, enrollment, and provisioning guide](apps/ios/README.md).
+Orchestra includes a native menu-bar interface. It shows fleet health, devices, jobs, approvals, alerts, Codex sessions, power controls, and Tailscale exit-node controls.
 
-## Codex Micro hardware integration
+If the optional `codexbar` command is present, Orchestra reads its JSON output. Orchestra keeps quota and reset data. It discards account identity data.
 
-The macOS desktop app includes an optional integration for the [Work Louder Codex Micro](https://worklouder.cc/). It turns the control surface into a tactile companion for Orchestra-hosted Codex sessions without moving session credentials or execution onto the keyboard.
+Read the [menu-bar guide](apps/menubar-macos/README.md).
 
-Six hardware slots can follow recent or priority sessions, stay pinned to specific sessions, or use custom mappings. Per-key lighting makes state visible at a glance: idle, working, unread, awaiting approval, error, and voice transcription each have a distinct color. Available actions include:
+## Other installations
 
-- Select, fork, interrupt, or navigate Codex conversations
-- Respond to an existing approval request through Orchestra's normal authorization path
-- Toggle Fast and Plan modes, change model/reasoning settings, and open review or terminal controls
-- Start push-to-talk, send a composed message, or attach files and photos
-- Run commit, push, pull-request, plugin, and configurable shortcut actions
-- Use the dial for composer navigation or model/reasoning selection, with configurable joystick mappings
-
-### Enable Codex Micro on macOS
-
-1. Connect the Codex Micro and open **Settings → Codex Micro** in the Orchestra desktop app.
-2. Enable the integration and choose slot, dial, joystick, lighting, and voice mappings.
-3. Grant macOS **Input Monitoring** permission so Orchestra can receive hardware events.
-4. If using push-to-talk, also grant **Microphone** and **Speech Recognition** permission. Voice capture uses the system-selected microphone and Apple Speech Recognition; audio is not sent to OpenAI.
-
-The native voice helper is built as part of the desktop application workflow. Preferences and diagnostics are stored in the app's private user-data directory with owner-only permissions. Hardware approval buttons only answer approval prompts already issued by Codex; they do not bypass Orchestra Core policy, Agent safeguards, or operating-system authorization.
-
-Codex Micro support is currently macOS-only. If the vendor interface is unavailable or no device is detected, Orchestra reports that state and continues normally with keyboard, mouse, web, and iOS controls.
-
-## macOS menu bar and CodexBar
-
-Orchestra includes a compact macOS menu-bar command surface for fleet health, devices, active jobs, approvals, alerts, quick Codex sessions, terminals, power controls, and Tailscale exit-node routing. Its adaptive light and dark appearance follows native macOS menu conventions and takes visual inspiration from the clarity of [CodexBar](https://github.com/steipete/CodexBar).
-
-When the optional `codexbar` CLI is installed, Orchestra reads its documented JSON output to display Codex session and weekly usage meters. The adapter is read-only, invokes a fixed absolute executable without a shell, discards account identity fields, and never reads CodexBar cookies, tokens, or configuration itself. Orchestra continues normally when CodexBar is absent or unavailable.
-
-## Other deployment paths
-
-| Target | Start here |
+| Target | Guide |
 | --- | --- |
-| Docker Compose or NAS | [Operations](docs/v2-operations.md) and [NAS deployment](deploy/nas/README.md) |
-| Kubernetes | [Kubernetes manifest](deploy/kubernetes/core.yaml) |
-| macOS, Linux, Windows Agent packages | [Native Agent installation](packages/agent/install/README.md) |
+| Docker Compose or NAS | [Operations](docs/v2-operations.md) and [NAS](deploy/nas/README.md) |
+| Kubernetes | [Kubernetes file](deploy/kubernetes/core.yaml) |
+| Native Agent packages | [Agent installation](packages/agent/install/README.md) |
 | Synology user service | [Synology installation](packages/agent/install/synology/README.md) |
-| Raspberry Pi gateway | [Gateway deployment](deploy/raspberry-pi/README.md) |
-| Native iOS client | [iOS client](apps/ios/README.md) |
-| macOS menu bar client | [Menu bar client](apps/menubar-macos/README.md) |
+| Raspberry Pi gateway | [Raspberry Pi](deploy/raspberry-pi/README.md) |
+| Native iOS client | [iOS](apps/ios/README.md) |
+| macOS menu bar | [Menu bar](apps/menubar-macos/README.md) |
 
-## Security model
+## Security
 
-Orchestra controls real computers. Treat Core as sensitive infrastructure and follow these defaults:
+Orchestra controls real computers. Use these safety rules:
 
 - Keep Core behind Tailscale or an equivalent private network.
-- Never expose Core using Funnel or ordinary router port forwarding.
-- Use HTTPS outside loopback and restrict network reachability with Tailscale grants.
-- Use scoped API tokens for clients and automation; keep the recovery token out of routine use.
-- Give Agents only the project roots they need. File operations reject traversal and symlink escapes.
-- Use short-lived, one-use enrollment tokens and revoke device credentials when retiring hardware.
-- Set `FLEET_MASTER_KEY` for every non-loopback deployment and back it up separately from encrypted state.
-- Enable destructive power actions only on devices where remote shutdown or restart is explicitly desired.
-- Export audit records to separately administered storage if you need stronger immutability.
-- Review [Security](docs/security.md), [Operations](docs/v2-operations.md), and [Security policy](SECURITY.md) before production use.
+- Use HTTPS for traffic that leaves loopback.
+- Use restricted API tokens for clients and automation.
+- Keep the recovery token out of normal use.
+- Give each Agent only the necessary project roots.
+- Use short-life, one-use enrollment tokens.
+- Set and back up `FLEET_MASTER_KEY`.
+- Enable destructive power operations only where necessary.
+- Send audit records to separate storage when strong retention is necessary.
 
-### Secret-handling rules for contributors
+Read [Security design](docs/security.md), [Operations](docs/v2-operations.md), and [Security policy](SECURITY.md) before production use.
 
-Never commit:
+### Secret rules
 
-- `.env` or `deploy/.env`
-- recovery, API, enrollment, device, Tailscale, cloud, or webhook tokens
-- private keys, certificates with private material, provisioning profiles, or signing identities
-- `fleet-state.json`, `device-credential.json`, backups, logs, or the `.fleet/` state directory
-- screenshots containing real hostnames, usernames, file paths, IP addresses, tokens, project names, or private fleet topology
+Do not commit these files or values:
 
-The repository ignores these common files, but `.gitignore` is not a security boundary. Inspect staged changes before every push:
+- `.env` files
+- API, recovery, enrollment, device, Tailscale, cloud, or webhook tokens
+- Private keys and signing identities
+- State files, device credentials, backups, or logs
+- Screenshots with private names, paths, addresses, or tokens
+
+Check all staged changes before each push:
 
 ```bash
 git status --short
@@ -340,28 +300,26 @@ git diff --cached
 npm run audit:publication
 ```
 
-If a real secret ever enters Git history, remove it from the repository **and rotate/revoke it immediately**. Rewriting history alone does not make an exposed credential safe.
+If a secret enters Git history, revoke it immediately. Then, remove it from the history.
 
 ## Configuration
 
-Copy [`.env.example`](.env.example) for local configuration or [`deploy/.env.example`](deploy/.env.example) for Compose. Every committed value is a placeholder; replace secrets only in ignored local files or an external secret store.
-
-Frequently used settings:
+Copy [`.env.example`](.env.example) for local use. Copy [`deploy/.env.example`](deploy/.env.example) for Compose.
 
 | Variable | Purpose |
 | --- | --- |
-| `FLEET_CORE_URL` | Reachable Core URL used by Agents and clients |
-| `FLEET_PUBLIC_URL` | Canonical URL advertised during enrollment |
-| `FLEET_TOKEN` | Recovery credential; use scoped API tokens for routine clients |
-| `FLEET_MASTER_KEY` | 32-byte key for encrypted secrets and backups |
-| `FLEET_ENROLLMENT_TOKEN` | Short-lived token used once to enroll an Agent |
-| `FLEET_PROJECT_ROOTS` | Comma-separated roots exposed to confined Agent file operations |
-| `FLEET_ALLOWED_ORIGINS` | Exact browser origins allowed to call Core |
-| `FLEET_ALLOW_POWER_ACTIONS` | Explicit Agent opt-in for destructive power controls |
+| `FLEET_CORE_URL` | Core URL for Agents and clients |
+| `FLEET_PUBLIC_URL` | Core URL used during enrollment |
+| `FLEET_TOKEN` | Recovery credential |
+| `FLEET_MASTER_KEY` | Key for encrypted secrets and backups |
+| `FLEET_ENROLLMENT_TOKEN` | One-use Agent enrollment token |
+| `FLEET_PROJECT_ROOTS` | Local roots that an Agent can access |
+| `FLEET_ALLOWED_ORIGINS` | Browser origins that Core permits |
+| `FLEET_ALLOW_POWER_ACTIONS` | Agent permission for destructive power operations |
 
-See [Operations](docs/v2-operations.md) for the complete production configuration.
+Read [Operations](docs/v2-operations.md) for all production settings.
 
-## Development and verification
+## Development checks
 
 ```bash
 npm run typecheck
@@ -370,61 +328,64 @@ npm run build
 PYTHONPATH=sdks/python/src python3 -m unittest discover -s sdks/python/tests -v
 ```
 
-Run the complete verification pipeline with:
+Run the complete check with this command:
 
 ```bash
 npm run verify
 ```
 
-The CI matrix verifies TypeScript on macOS, Windows, and Linux, tests the Python SDK, and builds Core and Agent container images. Development release workflows assemble unsigned PKG, MSI, DEB, and RPM Agent candidates; production distribution still requires platform signing and notarization.
+CI checks TypeScript on macOS, Windows, and Linux. It also tests the Python SDK and builds the Core and Agent images.
 
 ## Repository map
 
 ```text
-apps/desktop         Electron main/preload and React renderer
-apps/ios             Native SwiftUI iOS client
-apps/menubar-macos   Native macOS menu bar client
-packages/core        REST/WebSocket/MCP control plane and durable state
-packages/agent       Execution, telemetry, files, power, desktop, updates
-packages/shared      Protocol and domain contracts
-packages/mcp         Standalone stdio/HTTP MCP gateway
-packages/sdk         TypeScript REST SDK
-packages/plugin-sdk  Plugin manifest and hook contracts
-packages/simulator   Explicit development-only virtual Agents
-sdks/python          Dependency-free Python REST SDK
-deploy               Containers, services, Kubernetes, NAS, gateway assets
-docs                 Architecture, security, API, operations, development notes
+apps/desktop         Electron application
+apps/ios             Native SwiftUI client
+apps/menubar-macos   Native macOS menu-bar client
+packages/core        Control plane and state
+packages/agent       Local execution and device control
+packages/shared      Protocol and data types
+packages/mcp         MCP gateway
+packages/sdk         TypeScript SDK
+packages/plugin-sdk  Plugin contracts
+packages/simulator   Development-only Agents
+sdks/python          Python SDK
+deploy               Deployment files
+docs                 Technical documentation
 ```
 
 ## Documentation
 
-- [Architecture and trust boundaries](docs/architecture.md)
+- [Architecture](docs/architecture.md)
 - [Security design](docs/security.md)
 - [Production operations](docs/v2-operations.md)
-- [Web client deployment](docs/web-client.md)
+- [Web client](docs/web-client.md)
 - [MCP gateway](docs/mcp.md)
-- [OpenAPI specification](docs/openapi.yaml)
-- [Development notes](docs/development.md)
-- [Shipped capabilities and integration boundaries](docs/integration-boundaries.md)
+- [Development](docs/development.md)
+- [Integration limits](docs/integration-boundaries.md)
 
 ## Project status
 
-Orchestra V2 is active development software. It already provides a broad working control plane, but it is not a certified high-availability or compliance platform. Core currently uses single-active-instance JSON persistence, distribution packages are unsigned development candidates, and some external integrations remain adapter or metadata boundaries. Read [Integration boundaries](docs/integration-boundaries.md) before depending on a feature in production.
+Orchestra V2 is in active development. Core uses one active process and a JSON state file. Distribution packages are unsigned development files. Some external integrations contain only an adapter or metadata boundary.
 
-### Internal compatibility names
+Read [Integration limits](docs/integration-boundaries.md) before production use.
 
-The product and all operator-facing interfaces are branded **Orchestra**. Existing internal package scopes, environment variables, bundle identifiers, service identifiers, API field names, and legacy data directories retain names such as `@fleet/*`, `FLEET_*`, `com.fleetcanvas.*`, and `Fleet Canvas`. Changing those identifiers would break upgrades and existing deployments; they are compatibility contracts, not the public product name.
+### Compatibility names
 
-## Contributing
+The product name is Orchestra. Some internal names remain unchanged for upgrade compatibility. These names include `@fleet/*`, `FLEET_*`, `com.fleetcanvas.*`, and `Fleet Canvas`.
 
-Bug reports, proposals, documentation, and focused pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing. One Man Labs may require a contributor license agreement before accepting code so the project can continue offering both public noncommercial and separately negotiated commercial licenses.
+Do not change these names without a migration plan.
 
-Report suspected vulnerabilities privately according to [SECURITY.md](SECURITY.md), not in a public issue.
+## Contributions
 
-## License and attribution
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before you submit a change. Report security problems as specified in [SECURITY.md](SECURITY.md).
+
+## License
 
 Copyright 2026 One Man Labs.
 
-Orchestra is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE.md); it is not OSI-defined Open Source. Copies and modified versions must preserve the repository's Required Notice and attribution. Any business use requires a prior written agreement with One Man Labs.
+Orchestra uses the [PolyForm Noncommercial License 1.0.0](LICENSE.md). It is not open source under the OSI definition.
 
-See [Commercial licensing](COMMERCIAL-LICENSE.md) and [Notices](NOTICE.md).
+Copies and changed versions must keep the Required Notice and attribution. Business use requires a written agreement with One Man Labs.
+
+Read [Commercial licensing](COMMERCIAL-LICENSE.md) and [Notices](NOTICE.md).

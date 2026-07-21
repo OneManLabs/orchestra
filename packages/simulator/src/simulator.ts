@@ -135,11 +135,37 @@ class VirtualDevice {
       this.send({ type: 'agent.response', requestId: command.requestId, payload: { threadId: `demo-thread-${this.id}` } });
       return;
     }
+    if (command.type === 'codex.send' && this.options.codexUi) {
+      this.send({ type: 'agent.response', requestId: command.requestId, payload: { simulated: true } });
+      await this.streamCodexDemo(command.payload.sessionId);
+      return;
+    }
     this.send({ type: 'agent.response', requestId: command.requestId, payload: { simulated: true, type: command.type, deviceId: this.id } });
   }
 
   private send(message: AgentToCoreMessage): void {
     if (this.socket?.readyState === WebSocket.OPEN) this.socket.send(JSON.stringify(message));
+  }
+
+  private async streamCodexDemo(sessionId: string): Promise<void> {
+    const turnId = `demo-turn-${Date.now()}`;
+    const commandId = `demo-command-${Date.now()}`;
+    const emit = (message: Record<string, unknown>) => this.send({ type: 'codex.event', payload: { sessionId, message } });
+    emit({ method: 'turn/started', params: { turn: { id: turnId } } });
+    for (const delta of ['I’ll inspect the GPU worker, ', 'check CUDA and VRAM pressure, ', 'then summarize the bottleneck.']) {
+      await delay(360);
+      emit({ method: 'item/agentMessage/delta', params: { delta } });
+    }
+    await delay(420);
+    emit({ method: 'item/started', params: { item: { id: commandId, type: 'commandExecution', command: 'nvidia-smi --query-gpu=temperature.gpu,utilization.gpu,memory.used,memory.total --format=csv', status: 'inProgress' } } });
+    await delay(850);
+    emit({ method: 'item/completed', params: { item: { id: commandId, type: 'commandExecution', command: 'nvidia-smi --query-gpu=temperature.gpu,utilization.gpu,memory.used,memory.total --format=csv', status: 'completed', exitCode: 0, aggregatedOutput: 'temperature.gpu, utilization.gpu [%], memory.used [MiB], memory.total [MiB]\n47, 86 %, 11264 MiB, 16384 MiB\n' } } });
+    for (const delta of ['GPU health is good: 47°C at 86% utilization. ', 'VRAM is 69% allocated, so compute—not memory—is the current limiter. ', 'The worker is ready for sustained training.']) {
+      await delay(390);
+      emit({ method: 'item/agentMessage/delta', params: { delta } });
+    }
+    await delay(250);
+    emit({ method: 'turn/completed', params: { turn: { id: turnId, status: 'completed' } } });
   }
 }
 

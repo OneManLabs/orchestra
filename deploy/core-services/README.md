@@ -1,12 +1,17 @@
 # Core background services
 
-These definitions run the compiled `fleet-core` CLI as an always-on single Core. They do not install Node or build the repository.
+These service files run the compiled `fleet-core` command. They do not install Node.js or build the repository.
 
 ## macOS launchd
 
-Install the executable as `/usr/local/fleet-canvas/bin/fleet-core`, install `fleet-core-launchd` beside it with mode `0755`, and copy the plist to `/Library/LaunchDaemons/com.fleetcanvas.core.plist`.
+1. Install `fleet-core` in `/usr/local/fleet-canvas/bin/`.
+2. Install `fleet-core-launchd` in the same directory.
+3. Set mode `0755` on `fleet-core-launchd`.
+4. Copy the plist to `/Library/LaunchDaemons/com.fleetcanvas.core.plist`.
+5. Make `/Library/Application Support/Fleet Canvas/core.env`.
+6. Set owner `root` and mode `0600` on the file.
 
-Create `/Library/Application Support/Fleet Canvas/core.env` as a root-owned `0600` file containing shell-style assignments:
+Put these settings in `core.env`:
 
 ```bash
 FLEET_TOKEN='<recovery-token>'
@@ -16,10 +21,22 @@ FLEET_BACKUP_INTERVAL_HOURS=24
 FLEET_BACKUP_RETENTION_COUNT=14
 ```
 
-The wrapper refuses a symlink, non-root owner, or group/world-readable environment file before sourcing it. Ensure `/Library/Logs/Fleet Canvas` exists and is root writable, validate with `plutil -lint`, then load through `launchctl bootstrap system`.
+The wrapper rejects an unsafe environment file. It rejects a symbolic link, a non-root owner, or group and world read access.
+
+Make sure that `/Library/Logs/Fleet Canvas` exists. Make sure that root can write to it.
+
+Check the plist with `plutil -lint`. Then, load it with `launchctl bootstrap system`.
 
 ## Linux systemd
 
-Install the executable at `/opt/fleet-canvas/bin/fleet-core`, create user/group `fleet`, and create `/etc/fleet-canvas/core.env` owned by root with mode `0600`. Install `fleet-core.service`, run `systemctl daemon-reload`, and enable it.
+1. Install `fleet-core` in `/opt/fleet-canvas/bin/`.
+2. Make the `fleet` user and group.
+3. Make `/etc/fleet-canvas/core.env`.
+4. Set owner `root` and mode `0600` on the file.
+5. Install `fleet-core.service`.
+6. Run `systemctl daemon-reload`.
+7. Enable the service.
 
-The unit can write only `/var/lib/fleet-canvas`. If Core must access host-mounted artifact roots, add narrowly scoped `ReadWritePaths=` entries through a systemd drop-in; do not disable the full service sandbox.
+The service can write only to `/var/lib/fleet-canvas`.
+
+If Core needs another write path, add a specific `ReadWritePaths=` value in a systemd drop-in. Do not disable the service sandbox.

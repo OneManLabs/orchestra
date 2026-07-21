@@ -1,37 +1,43 @@
-# Orchestra Agent installation and packages
+# Orchestra Agent installation
 
-Orchestra Agent can run as a native background service on macOS, Windows, Debian/Ubuntu, RPM-based Linux, and Raspberry Pi OS. Agents make outbound connections to Core; none of these installers opens a firewall port.
+The Agent can run as a background service on macOS, Windows, Linux, and Raspberry Pi OS. An Agent makes an outbound connection to Core. The installers do not open a firewall port.
 
-## Runtime bundle
+## Make a runtime bundle
 
-Build the Agent, then create the runtime bundle on the same operating system and architecture as the target package. By default, the bundle contains compiled Agent code and all production dependencies, including the native `node-pty` module.
+Build the bundle on the same operating system and architecture as the target package.
 
 ```bash
 npm run build -w @fleet/agent
 node packages/agent/install/build-bundle.mjs --out /tmp/fleet-agent-bundle
 ```
 
-Do not move a macOS/ARM bundle into a Windows/x64 MSI or a Linux/x64 bundle into an ARM Raspberry Pi package. `build-bundle.mjs` validates its output directory, installs production dependencies, and normalizes secure portable permissions before returning. That final pass restores executable modes for native helpers and signed binaries when an upstream package archive loses them, removes group/other write access, and rejects links that escape the bundle. POSIX installer copy paths preserve those normalized modes.
+The bundle contains the Agent and production dependencies. A full bundle includes `node-pty`.
 
-For an appliance that cannot build or load the native PTY binding, create an intentionally terminal-free bundle:
+Do not put a macOS ARM bundle in a Windows x64 or Linux package.
+
+For a device without a native PTY, make an appliance bundle:
 
 ```bash
 node packages/agent/install/build-bundle.mjs --out /tmp/fleet-agent-appliance --omit-pty
 ```
 
-The appliance bundle includes a validated marker so native installers can distinguish this supported mode from a damaged full bundle. It can still report telemetry, run jobs, transfer files, and perform its other configured duties, but it does not advertise `feature:terminal`; interactive terminal commands return an explicit unsupported-runtime error. Full bundles continue to require `node-pty` by default.
+An appliance bundle does not give interactive terminals. It can still report telemetry, run jobs, and transfer files.
 
-## Enrollment configuration
+## Enrollment
 
-Prefer one-time enrollment over a shared static token. Put the token in a root/administrator-only input file, let the installer consume it, then remove `FLEET_ENROLLMENT_TOKEN` from the installed service configuration after enrollment. The Agent stores its device-bound credential separately with owner-only permissions.
+Use a one-use enrollment token. Put the token in a file that only root or the administrator can read.
 
-Never pass enrollment or recovery tokens directly on a command line in unattended production automation: process arguments and package-manager logs can expose them.
+Do not put a token in a command argument. Process lists and package logs can show command arguments.
 
-Native services execute Codex and shell jobs as the service identity, not as the currently logged-in desktop user. Put Codex authentication, repository credentials, NAS permissions, and project-root ACLs in that identity deliberately: `LocalSystem` for the stock Windows MSI, `fleet-agent` for the Linux packages, and the selected launchd user on macOS. Do not copy a personal credential directory into a service account as a shortcut.
+The service runs as its service identity. Put the necessary Codex, repository, NAS, and project permissions on that identity.
+
+Do not copy a personal credential directory to the service account.
+
+The Agent does not copy a personal Codex credential directory.
 
 ## Windows MSI
 
-The WiX definition installs the complete Windows runtime bundle, a private Node.js 22 executable, and WinSW. Windows Installer registers `FleetCanvasAgent` as an automatic LocalSystem service and removes the runtime and service registration on uninstall. `%ProgramData%\Fleet Canvas\agent` is intentionally retained unless the purge wrapper is used. A bare MSI install leaves the service in a non-running retry state until the protected service configuration exists; the headless wrapper writes and locks that configuration before starting MSI installation.
+The MSI installs the Agent, Node.js 22, and WinSW. It registers the `FleetCanvasAgent` LocalSystem service.
 
 Build on Windows x64:
 
@@ -40,8 +46,6 @@ npm run build -w @fleet/agent
 node packages/agent/install/build-bundle.mjs --out C:\build\fleet-agent-bundle
 dotnet tool install --global wix --version 5.0.2
 
-# WinSW 2.12.0 x64; verify SHA-256 before use:
-# 05b82d46ad331cc16bdc00de5c6332c1ef818df8ceefcd49c726553209b3a0da
 .\packages\agent\install\windows\build-msi.ps1 `
   -Bundle C:\build\fleet-agent-bundle `
   -WinSw C:\build\WinSW-x64.exe `
@@ -49,9 +53,13 @@ dotnet tool install --global wix --version 5.0.2
   -Output C:\build\fleet-canvas-agent-2.0.0-x64.msi
 ```
 
-`build-msi.ps1` generates one deterministic WiX component for every bundled runtime file, so `dist`, `node_modules`, `node.exe`, the service host, dependency license notices, and configuration utility are all placed in the MSI cabinet. It also copies the headless install/uninstall wrappers beside the MSI.
+Use WinSW 2.12.0 x64 only after you check this SHA-256 value:
 
-For unattended enrollment, create a one-line token file readable only by the invoking administrator, then use the wrapper. This keeps the token out of `msiexec` properties and Windows Installer logs.
+```text
+05b82d46ad331cc16bdc00de5c6332c1ef818df8ceefcd49c726553209b3a0da
+```
+
+For unattended enrollment, make a restricted token file. Then, use `install-msi.ps1`.
 
 ```powershell
 $tokenPath = 'C:\ProgramData\Fleet Canvas\enrollment-token'
@@ -71,15 +79,17 @@ icacls.exe $tokenPath /setowner '*S-1-5-32-544'
   -ConsumeSecretFiles
 ```
 
-`-CodexCommand` must name an existing, non-reparse executable using a fully qualified Windows path. `-CodexHome` must also be fully qualified; the installer creates it without traversing reparse points, recursively replaces the access rules on regular existing descendants, and grants full control only to LocalSystem, Administrators, and the invoking administrator. Descendant reparse points such as the official `packages\standalone\current` compatibility link are preserved and never followed during ACL normalization. This makes pre-existing logs, package caches, and authentication databases usable by both the service and an administrator performing device authentication. Files receive full control rather than a data-only permission, so a standalone Codex executable hard-linked between the home and its visible command path remains executable. Fleet does not copy a personal Codex credential directory into it, so authenticate Codex deliberately as the LocalSystem service identity using an approved administrative workflow. Protect the configured Codex executable from non-administrative modification.
+`-CodexCommand` must be a full path to a regular executable. `-CodexHome` must be a full path.
 
-The alternative `service-config.example.json` format uses `FLEET_*` keys plus `CODEX_HOME`. Keep a preseed file administrator-owned with no non-administrative write ACL, pass `-ConfigFile`, and use `-ConsumeInputFiles` when the preseed should be removed after configuration. Reconfigure an installed service with the companion or installed `configure.ps1`. After successful enrollment, remove both bootstrap token forms so the Agent uses its device-bound credential:
+Authenticate Codex for LocalSystem through an approved administrator process.
+
+After enrollment, remove the bootstrap tokens:
 
 ```powershell
 & "$env:ProgramFiles\Fleet Canvas\Agent\configure.ps1" -RemoveEnrollmentToken -RemoveToken
 ```
 
-Use `uninstall-msi.ps1 -Msi <path>` for a silent uninstall and add `-Purge` only when the device credential, logs, and state should also be destroyed. The separate `install.ps1`/`uninstall.ps1` pair remains available for an administrator-managed, non-MSI installation.
+Use `uninstall-msi.ps1` for removal. Add `-Purge` only when you also want to delete credentials, state, and logs.
 
 ## Debian and Ubuntu
 
@@ -91,7 +101,7 @@ packages/agent/install/linux/deb/build-deb.sh \
   /tmp/fleet-canvas-agent_2.0.0_$(dpkg --print-architecture).deb
 ```
 
-For atomic headless enrollment, preseed a root-only JSON file before installing. The package consumes and deletes it during `postinst`:
+For initial installation, make a root-only preseed file:
 
 ```bash
 sudo install -d -m 0750 -o root -g root /etc/fleet-canvas
@@ -101,7 +111,7 @@ sudoedit /etc/fleet-canvas/package-install.json
 sudo apt install /tmp/fleet-canvas-agent_2.0.0_amd64.deb
 ```
 
-If the package is already installed, use token files for unattended changes:
+For an installed package, use a token file:
 
 ```bash
 sudo install -m 0600 ./enrollment-token /run/fleet-enrollment-token
@@ -113,21 +123,25 @@ sudo fleet-agent-configure \
   --restart
 ```
 
-After enrollment, run `sudo fleet-agent-configure --remove-enrollment-token --restart`. A normal package removal preserves `/etc/fleet-canvas`, `/var/lib/fleet-canvas-agent`, and a pre-existing service account. `apt purge fleet-canvas-agent` removes package-created state and the package-created account.
+After enrollment, run this command:
 
-## RPM distributions
+```bash
+sudo fleet-agent-configure --remove-enrollment-token --restart
+```
 
-Build with `rpmbuild` on the target architecture:
+A normal removal keeps configuration and state. `apt purge fleet-canvas-agent` removes package-created state.
+
+## RPM
+
+Build on the target architecture:
 
 ```bash
 packages/agent/install/linux/rpm/build-rpm.sh /tmp/fleet-agent-bundle /tmp/rpms
 ```
 
-The RPM consumes the same root-owned `/etc/fleet-canvas/package-install.json` preseed and installs `/usr/sbin/fleet-agent-configure`. RPM erase preserves `/etc/fleet-canvas`, `/var/lib/fleet-canvas-agent`, and the service identity by design; remove those explicitly only when decommissioning the device.
+The RPM uses the same `/etc/fleet-canvas/package-install.json` preseed file. Removal keeps configuration and state until an administrator deletes them.
 
 ## Standalone Linux and Raspberry Pi
-
-The standalone installer accepts `--config-file`, `--enrollment-token-file`, `--token-file`, `--consume-inputs`, `--headless`, service role/user, project-root, power, sleep, and update-signing options. It installs `/usr/local/sbin/fleet-agent-configure`. Raspberry Pi defaults to the `gateway` role and enables job sleep inhibition.
 
 ```bash
 sudo packages/agent/install/linux/install.sh \
@@ -139,45 +153,40 @@ sudo packages/agent/install/linux/install.sh \
   --headless
 ```
 
-Standalone uninstall preserves configuration/state by default. Add `--purge` to remove it; the uninstaller deletes the service account only if that exact installer created it. When a custom install directory or service user was used, pass the same values to `linux/uninstall.sh`.
+Removal keeps configuration and state. Add `--purge` to delete them.
 
-`--allow-power-actions` enables the Agent-side command gate; it does not silently grant the unprivileged Linux service account root power. If restart/shutdown is required, deploy a narrowly scoped, audited polkit/sudo rule through system management. Keep it disabled otherwise.
+`--allow-power-actions` opens the Agent command gate. It does not give root permission to the service account.
+
+Use a small audited polkit or sudo rule only when restart or shutdown is necessary.
 
 ## macOS
 
-`macos/install.sh` installs a launchd service and `macos/build-pkg.sh` builds an unsigned package. A headless `.pkg` can read root-owned mode-0600 values from `/Library/Application Support/Fleet Canvas/package-install.env`; its postinstall consumes that file. Production packages need Developer ID Installer signing and notarization.
+`macos/install.sh` installs a launchd service. `macos/build-pkg.sh` makes an unsigned package.
 
-## Synology DSM without root
+A headless package can read `/Library/Application Support/Fleet Canvas/package-install.env`. Set root ownership and mode `0600` on this file.
 
-`synology/install.sh` installs a runtime bundle and a selected Node.js 22+
-executable below the current DSM user's home. Its POSIX `sh` lifecycle helper
-provides `start`, `stop`, `restart`, `status`, `logs`, and `uninstall` without
-`sudo` or `systemd`; it runs the Agent with `nohup` so an SSH disconnect does
-not stop it. A protected owner-only enrollment token file is consumed only
-after the device credential has been issued, and the Agent is restarted without
-the token in its environment.
+Production packages require Developer ID Installer signing and notarization.
 
-This user-mode helper does not create a native DSM boot service. Configure its
-absolute `start` command as a boot-up task under the same user in DSM Task
-Scheduler. See [`synology/README.md`](synology/README.md) for architecture,
-terminal-free bundle, enrollment, persistence, and uninstall details.
+## Synology DSM
 
-## Signing and release boundary
+`synology/install.sh` installs a user-mode Agent below the current DSM user home. It does not require root, `sudo`, or systemd.
 
-The checked-in workflow builds unsigned development candidates only. Production distribution additionally requires:
+Read [Synology installation](synology/README.md) for the complete procedure.
 
-- macOS Developer ID Installer signing and notarization;
-- Windows Authenticode signing for the MSI and service executables, plus a trusted timestamp;
-- signed APT/RPM repositories and repository metadata;
-- an organization-owned update signing key configured on every Agent.
+## Production signing
 
-Agent update staging refuses unsigned releases by default. Do not promote the unsigned workflow artifacts to stable channels.
+The GitHub workflow makes unsigned development packages. Production distribution requires these controls:
 
-## Staged-update service handoff
+- macOS signing and notarization
+- Windows Authenticode and a trusted timestamp
+- Signed APT and RPM repositories
+- An organization update-signing key on each Agent
 
-Agent deliberately does not invoke a privileged package manager. `update.prepare` downloads the artifact, verifies its SHA-256 digest and configured release signature, and writes a manifest. `update.apply` moves that release into the active update directory and returns `pending-service-installer`; it does **not** replace the running installation, restart the host, or report the rollout successful.
+Do not publish unsigned workflow files as stable packages.
 
-The selected release is recorded under:
+## Privileged update handoff
+
+The Agent downloads and checks an update. It writes these files:
 
 ```text
 <FLEET_AGENT_DATA_DIR>/updates/active.json
@@ -185,15 +194,25 @@ The selected release is recorded under:
 <FLEET_AGENT_DATA_DIR>/updates/releases/<version>/release.package
 ```
 
-A production deployment needs a separate, explicitly enabled privileged supervisor (MDM, SCCM/Intune, launchd/systemd root service, or configuration-management agent). That supervisor must:
+The Agent does not run a privileged package manager. A separate root or SYSTEM service must do these steps:
 
-1. Read `active.json` and require an approved version/change window.
-2. Construct the release path from the validated version; never trust an arbitrary `artifactPath` outside the release directory.
-3. Recompute the artifact SHA-256 and independently verify the manifest signature with a root-owned public key.
-4. Inspect native package identity, version, platform, architecture, and native code/repository signature.
-5. Install from a process outside the Orchestra Agent service/runtime (`installer -pkg`, `msiexec /i`, `dpkg -i`, or `rpm -Uvh`).
-6. Wait for the upgraded Agent to reconnect and report the expected version/protocol before marking success.
-7. Record installer exit status outside Agent-writable state and retain the previous verified package as the rollback candidate.
-8. On failure, leave the rollout paused and require an explicit rollback approval; do not repeatedly install from a restart loop.
+The apply result is `pending-service-installer`.
 
-This repository does not install or enable that privileged supervisor because its identity, approval source, maintenance policy, native signing trust, and rollback health check are deployment-specific security decisions. The checked-in rollout remains truthfully paused until this external handoff completes.
+A separate, explicitly enabled privileged supervisor installs the package.
+
+This repository does not install or enable that privileged supervisor.
+
+1. Read `active.json`.
+2. Check the approved version and change period.
+3. Make the release path from the validated version.
+4. Recalculate SHA-256.
+5. Check the manifest signature.
+6. Check package identity, version, platform, architecture, and native signature.
+7. Install the package from outside the Agent process.
+8. Wait for the Agent to reconnect with the expected version.
+9. Record the installer result outside Agent-writable state.
+10. Keep the previous verified package for rollback.
+
+On failure, pause the update. Require an explicit rollback approval.
+
+This repository does not install the privileged service. Each organization must supply its own trust and maintenance policy.

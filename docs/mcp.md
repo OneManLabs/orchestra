@@ -1,16 +1,28 @@
 # Orchestra MCP server
 
-`@fleet/mcp` lets Codex operate Orchestra through narrow, typed tools. It is a separate gateway to Core, so it can run beside Codex over stdio or behind an authenticated Streamable HTTP endpoint.
+`@fleet/mcp` lets an MCP client operate Orchestra through typed tools. It connects to Core through standard input and output or Streamable HTTP.
 
 ## Tools
 
-The server exposes device inventory/health/selection, power control, job creation/cancel/retry/move, pipeline creation/execution/status, job logs, artifact search/transfer/deployment, project mapping, Codex session startup, approval/notification requests, active alerts, and diagnostics.
+The server supplies tools for these functions:
 
-Tool annotations mark read-only and destructive behavior. Power and artifact-promotion tools require an explicit `confirm: true`; Core policy remains authoritative. Artifact promotion records verified version metadata—the actual deployment command belongs in a reviewed pipeline. `fleet_request_approval` creates an informational operator notification, not an enforceable approval grant.
+- Device inventory, health, and selection
+- Power control
+- Job and pipeline control
+- Logs
+- Artifact search, transfer, and deployment data
+- Project maps
+- Codex session start
+- Notifications and approval requests
+- Alerts and diagnostics
 
-## Local stdio setup
+Tool annotations identify read-only and destructive operations. Power and artifact-promotion tools require `confirm: true`.
 
-Build and start once for a smoke test:
+Core policy always has authority. `fleet_request_approval` makes a notification. It does not give approval authority.
+
+## Standard input and output
+
+Build and start the server:
 
 ```bash
 npm run build -w @fleet/mcp
@@ -20,7 +32,7 @@ FLEET_MCP_READ_ONLY=true \
 node packages/mcp/dist/cli.js
 ```
 
-Codex configuration:
+Add this MCP configuration:
 
 ```toml
 [mcp_servers.fleet]
@@ -29,7 +41,7 @@ args = ["/absolute/path/to/fleet/packages/mcp/dist/cli.js"]
 env = { FLEET_CORE_URL = "http://core-name:4780", FLEET_TOKEN = "replace-me", FLEET_MCP_READ_ONLY = "true" }
 ```
 
-Codex CLI, IDE, and app share the same MCP configuration. Keep the first setup read-only and restrict tools further with `FLEET_MCP_ALLOWED_TOOLS`.
+Start with read-only access. Use `FLEET_MCP_ALLOWED_TOOLS` to permit only necessary tools.
 
 ## Streamable HTTP
 
@@ -41,7 +53,11 @@ FLEET_MCP_TOKEN="$(openssl rand -hex 32)" \
 npm run start:mcp
 ```
 
-Remote binding requires a `FLEET_MCP_TOKEN` of at least 32 bytes. Put the endpoint behind Tailscale and an HTTPS reverse proxy, set `FLEET_MCP_ALLOWED_HOSTS` to the expected Host names, and use a separate, short-lived MCP token rather than the Core recovery token. Failed bearer attempts are rate limited. HTTP requests use stateless transports that are closed after each response.
+A remote listener requires a `FLEET_MCP_TOKEN` of at least 32 bytes.
+
+Keep the endpoint behind Tailscale and an HTTPS proxy. Set `FLEET_MCP_ALLOWED_HOSTS` to the permitted Host values.
+
+Use a separate MCP token. Do not use the Core recovery token.
 
 ```toml
 [mcp_servers.fleet]
@@ -49,9 +65,7 @@ url = "https://fleet-mcp.example.ts.net/mcp"
 bearer_token_env_var = "FLEET_MCP_TOKEN"
 ```
 
-## Permission profiles
-
-Read-only operations profile:
+## Read-only profile
 
 ```bash
 FLEET_MCP_READ_ONLY=true \
@@ -59,4 +73,6 @@ FLEET_MCP_ALLOWED_TOOLS=fleet_list_devices,fleet_get_device,fleet_get_health,fle
 node packages/mcp/dist/cli.js
 ```
 
-`fleet_find_capable_device` calls Core's scheduler and persists a scheduling decision, so it is intentionally unavailable in strict read-only mode. An automation profile should use a scoped Core API token and only the tools required by that project. Do not give a background Codex agent unrestricted power, secret, transfer, and promotion tools together.
+`fleet_find_capable_device` stores a scheduling decision. Thus, strict read-only mode does not permit it.
+
+For automation, use a scoped Core token. Do not give one background process unrestricted power, secret, transfer, and deployment tools.

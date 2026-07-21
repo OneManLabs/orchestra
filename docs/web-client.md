@@ -1,6 +1,10 @@
-# Responsive web and mobile client
+# Web and mobile client
 
-Orchestra ships the same responsive React control surface as a static PWA. The production build never embeds an Orchestra credential. Operators enter a scoped API token at runtime; it remains in JavaScript memory and is discarded on refresh or close. Only the non-secret Core URL is retained for the browser session.
+Orchestra supplies the React interface as a static PWA. The production build does not contain an Orchestra credential.
+
+The user enters a scoped API token at runtime. The browser keeps the token in memory. It removes the token after a refresh or close.
+
+The browser session keeps only the non-secret Core URL.
 
 ## Build
 
@@ -8,29 +12,36 @@ Orchestra ships the same responsive React control surface as a static PWA. The p
 npm run build:web
 ```
 
-Serve `apps/desktop/dist-web` from an HTTPS origin. The recommended topology is a same-origin reverse proxy:
+Serve `apps/desktop/dist-web` from HTTPS. Use a same-origin proxy when possible:
 
 ```text
-https://fleet.example.ts.net/       -> static dist-web files
+https://fleet.example.ts.net/       -> static files
 https://fleet.example.ts.net/api/   -> http://127.0.0.1:4780/api/
-https://fleet.example.ts.net/ws/    -> ws://127.0.0.1:4780/ws/ (upgrade enabled)
+https://fleet.example.ts.net/ws/    -> ws://127.0.0.1:4780/ws/
 ```
 
-With that layout the client discovers Core from `window.location.origin`; no build-time URL or token is needed. Configure the reverse proxy to preserve WebSocket upgrades, cap request sizes, restrict the site to the tailnet, and send a production Content Security Policy appropriate to the final Core/media origins. The packaged Electron renderer receives its own restrictive build-time CSP; the static web build deliberately leaves that deployment-specific header to the HTTPS reverse proxy. Core still performs its own bearer/scope, origin, and policy checks.
+Configure WebSocket upgrades and request-size limits. Restrict the site to the tailnet. Add a Content Security Policy for the final origins.
 
-For a separate web origin, set `VITE_FLEET_CORE_URL` only to the public Core origin at build time and add the exact web origin to `FLEET_ALLOWED_ORIGINS` on Core. Never set `VITE_FLEET_TOKEN`: Orchestra deliberately has no build-time token path.
+Core still checks bearer scopes, origins, and policy.
 
-## Operator access
+For a separate web origin, set `VITE_FLEET_CORE_URL` to the public Core origin. Add the exact web origin to `FLEET_ALLOWED_ORIGINS`.
 
-1. Create a short-lived API token with only the required read/write and sensitive-family scopes.
-2. Open the PWA and enter the Core HTTPS URL and token.
-3. Install the PWA from Safari/Chrome if desired.
-4. Re-enter the token after a page refresh or process restart.
+Do not set `VITE_FLEET_TOKEN`. Orchestra has no build-time token path.
 
-The service worker caches only static shell assets. It bypasses `/api/` and `/ws/`; snapshots, telemetry, artifacts, logs, and credentials are never added to the browser cache.
+## User access
 
-Browser notifications work while the client is open and the operator grants permission. Background APNs/Web Push delivery is not part of the self-hosted Core and requires a separately configured push provider.
+1. Make a short-life token with only the necessary scopes.
+2. Open the PWA.
+3. Enter the Core HTTPS URL and token.
+4. Install the PWA if necessary.
+5. Enter the token again after a refresh or restart.
+
+The service worker caches only static interface files. It does not cache API data, telemetry, artifacts, logs, or credentials.
+
+Browser notifications work while the client is open. Hosted background push is not included.
 
 ## Development
 
-`npm run dev:web` starts Core, a real local Agent, and Vite. Vite proxies `/api` and `/ws` to loopback Core, so the browser uses the same-origin path and no mock fleet data. This command deliberately starts Core with `--allow-unauthenticated-loopback` for the local development proxy only. Never reuse that switch with a production/shared reverse proxy; run Core with normal authentication and enter a scoped API token in the PWA instead.
+`npm run dev:web` starts Core, one real local Agent, and Vite. Vite sends `/api` and `/ws` to loopback Core.
+
+This command uses `--allow-unauthenticated-loopback` only for the local development proxy. Do not use this option with a shared proxy.

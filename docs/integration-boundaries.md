@@ -1,13 +1,14 @@
-# Integration boundaries
+# Integration limits
 
-Orchestra deliberately fails or reports metadata-only state when an external integration is not actually available. The interface should not present an unavailable capability as operational.
+Orchestra shows a function as unavailable when its external integration is not present. The interface must not show an unavailable function as operational.
 
-| Capability | What this repository ships | Boundary that remains |
+| Function | Included | Not included |
 | --- | --- | --- |
-| Agent distribution | Development PKG, MSI, DEB, and RPM candidates; native service definitions; enrollment inputs; update staging and rollback requests | Production packages require Apple notarization, Authenticode, APT/RPM signing, and privileged service activation |
-| Core availability | Durable atomic state, encrypted backup, validated restore, Compose/service/NAS assets, single-replica Kubernetes manifest | Core is a single-active-instance JSON store, not an HA database or multi-site replication system |
-| Remote visual control | Launch adapters for installed RDP, VNC, macOS Screen Sharing, Sunshine, and explicit external URLs | No embedded WebRTC stream, audio, recording, or multi-monitor transport |
-| Mobile and notifications | Responsive PWA, native iOS client, local notifications, inbox, webhooks | No hosted APNs/Web Push delivery service, SMS service, or biometric approval backend |
-| Identity and governance | Recovery credential, scoped tokens, device credentials, role/member records, policy foundations, audit chain | No bundled human SSO/session service, SAML/OIDC/SCIM, attestation, KMS, SIEM, or compliance certification |
-| Storage and transfers | Confined Core/Agent/mounted-NAS browsing, resumable transfer, integrity validation | Object-store registration does not imply complete direct S3/MinIO transfer or automatic mounting |
-| Plugins and hybrid compute | Manifest and SDK contracts, REST, MCP, webhooks, development simulator | Core does not execute arbitrary marketplace plugins or provision cloud/Kubernetes workers |
+| Agent packages | Development PKG, MSI, DEB, and RPM files | Production signing, notarization, and privileged activation |
+| Core state | Atomic state, encrypted backup, restore checks, and deployment files | High-availability database and multi-site replication |
+| Remote desktop | RDP, VNC, Screen Sharing, Sunshine, and URL launch adapters | Built-in video, audio, recording, and monitor transport |
+| Mobile | PWA, iOS client, local notifications, inbox, and webhooks | Hosted APNs, Web Push, SMS, and biometric server |
+| Identity | Recovery token, scoped tokens, device credentials, roles, and policy | SSO, SAML, OIDC, SCIM, attestation, KMS, SIEM, and certification |
+| Storage | Restricted file access, restartable transfer, and integrity checks | Complete direct S3 or MinIO transfer and automatic mounts |
+| Plugins | Manifests, SDK contracts, REST, MCP, and webhooks | Execution of arbitrary marketplace plugins |
+| Compute | Local scheduling and simulator devices | Automatic cloud or Kubernetes worker creation |

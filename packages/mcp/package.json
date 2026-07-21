@@ -4,7 +4,9 @@
   "private": true,
   "license": "PolyForm-Noncommercial-1.0.0",
   "type": "module",
-  "bin": { "fleet-mcp": "dist/cli.js" },
+  "bin": {
+    "fleet-mcp": "dist/cli.js"
+  },
   "scripts": {
     "dev": "tsx src/cli.ts",
     "build": "tsc -p tsconfig.json",

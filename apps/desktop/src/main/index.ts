@@ -1173,7 +1173,7 @@ function createMenuBar(): void {
   }
 }
 
-const ownsInstanceLock = app.requestSingleInstanceLock();
+const ownsInstanceLock = process.env.FLEET_DESKTOP_DEMO === 'true' || app.requestSingleInstanceLock();
 if (!ownsInstanceLock) app.quit();
 else {
   if (process.platform === 'darwin') process.on('SIGUSR2', handleMenuBarToggleRequest);
@@ -1194,7 +1194,9 @@ else {
     registerIpc();
     try { await startEmbeddedServices(); } catch (error) { console.error('[fleet] embedded startup failed', error); }
     const loginSettings = app.getLoginItemSettings(loginItemIdentity());
-    const menuBarOnlyLaunch = pendingMenuBarToggle || shouldStartMenuBarOnly(process.argv, loginSettings);
+    const menuBarOnlyLaunch = process.env.FLEET_DESKTOP_DEMO === 'true'
+      ? false
+      : pendingMenuBarToggle || shouldStartMenuBarOnly(process.argv, loginSettings);
     createWindow(!menuBarOnlyLaunch);
     if (process.platform === 'darwin') createMenuBar();
     if (process.platform === 'darwin') createCodexMicroController();

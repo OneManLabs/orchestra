@@ -1,33 +1,31 @@
 # Orchestra for iPhone
 
-Orchestra for iPhone is a native SwiftUI control surface for Orchestra Core
-API. It uses the same dark, cyan-accented visual language as the Electron app,
-with iPhone-native navigation, sheets, touch targets, Dynamic Type, Keychain
-storage, Face ID/passcode confirmation, and QR enrollment.
+Orchestra for iPhone is a native SwiftUI client for Orchestra Core. It uses iOS navigation, sheets, Dynamic Type, Keychain, device authentication, and QR enrollment.
 
-The app never ships with mock fleet data or embedded credentials. Device,
-job, Codex, approval, alert, and telemetry views are populated from the
-configured live Orchestra Core.
+The application does not contain sample fleet data or credentials. It gets device, job, Codex, approval, alert, and telemetry data from the configured Core.
 
-## Included controls
+## Functions
 
-- Mission health and capacity dashboard
-- Complete fleet list and device telemetry
-- Wake, lock, sleep, restart, and shutdown
-- Job creation, output, retry, and cancellation
-- Codex session list, chat, live permission changes, approvals, interrupt, stop, and resume
-- Alerts, notifications, and approval inbox
-- QR or manual Orchestra Core enrollment
-- Authenticated WebSocket updates with foreground reconnection
-- Keychain-backed scoped API credentials
+- Show fleet status and capacity.
+- Show devices and telemetry.
+- Wake, lock, sleep, restart, or shut down a device.
+- Start, retry, or cancel a job.
+- Show job output.
+- Control Codex sessions and approvals.
+- Show alerts and notifications.
+- Enroll with a QR code or manual data.
+- Reconnect the WebSocket when the application becomes active.
+- Keep API credentials in Keychain.
 
-## Generate and build
+## Build and test
 
 Requirements:
 
-- Xcode 26 or newer
-- XcodeGen 2.44.1 or newer
-- iOS 18 or newer
+- Xcode 26 or a newer version
+- XcodeGen 2.44.1 or a newer version
+- iOS 18 or a newer version
+
+Run these commands:
 
 ```sh
 cd apps/ios
@@ -39,12 +37,11 @@ xcodebuild \
   test
 ```
 
-The generated Xcode project is checked in for convenience, while
-`project.yml` remains the source of truth.
+`project.yml` is the source file for the Xcode project. The repository also contains the generated project.
 
-## Connect securely
+## Connect to Core
 
-Use a least-privilege Orchestra API token with:
+Use an API token with only the necessary scopes. These scopes are a typical set:
 
 ```text
 fleet:read
@@ -52,18 +49,17 @@ fleet:write
 power:write
 ```
 
-Enter the private Tailscale address for Orchestra Core, or scan an Orchestra pairing QR
-code from inside the app. Credentials are stored with
-`kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`.
+Enter the private Core address. You can also scan an Orchestra enrollment QR code.
 
-Debug builds permit private `http://100.x` Core addresses for local
-development. Release builds require HTTPS. Do not expose Orchestra Core, NAS
-administration, or device agents to the public internet.
+The application stores credentials with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`.
 
-## Live UI verification
+Debug builds permit private `http://100.x` addresses. Release builds require HTTPS.
 
-The UI test reads its live test connection only from the test process
-environment:
+Do not expose Core, NAS administration, or Agents to the public internet.
+
+## Live UI test
+
+Set the test connection in the test-process environment:
 
 ```sh
 export FLEET_TEST_CORE_URL='https://fleet-core.example.ts.net'
@@ -75,11 +71,10 @@ xcodebuild \
   test
 ```
 
-If those variables are absent, the live navigation test skips without using
-fallback or sample data.
+The live test does not use fallback data. It skips when these variables are not present.
 
-## Personal Team installations
+## Apple Personal Team limit
 
-Apple Personal Team provisioning permits only three development-signed apps
-on a device at once, and profiles expire quickly. A paid Apple Developer
-Program team and TestFlight are recommended for durable distribution.
+Personal Team provisioning permits three development-signed applications on one device. The profiles also have a short life.
+
+Use a paid Apple Developer Program team and TestFlight for long-term distribution.

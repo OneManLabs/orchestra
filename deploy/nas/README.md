@@ -1,14 +1,25 @@
-# NAS deployment
+# NAS installation
 
-Fleet Core runs on any NAS that supports Docker Compose and an `amd64` or `arm64` Node 22 image. Copy `deploy/compose.yaml` and `deploy/.env.example`, set secrets, and mount a NAS dataset at `/storage`.
+Core can run on a NAS that supports Docker Compose. The NAS must support an `amd64` or `arm64` Node.js 22 image.
 
-## Synology Container Manager / QNAP Container Station
+Copy `deploy/compose.yaml` and `deploy/.env.example`. Set the secrets. Mount a NAS data set at `/storage`.
 
-1. Create dedicated `fleet-core`, `fleet-artifacts`, and `fleet-backups` shared folders.
-2. Grant the container identity access only to those folders.
-3. Copy `deploy/.env.example` to `deploy/.env`, replace the recovery/vault secrets, set `FLEET_PUBLIC_URL`, and point `FLEET_STORAGE_ROOT` at the mounted artifact share. Compose exposes those values to containers through secret files.
-4. Bind port 4780 to the NAS Tailscale address or firewall it to the tailnet; never expose it through router port forwarding.
-5. Mount SMB/NFS datasets on the NAS host first, then register their container-visible root paths in Storage. V2 validates provider metadata and local roots; it does not invoke privileged host mount commands.
-6. Configure automatic encrypted Core backups and snapshot/replicate both the Core data volume and artifact share off-site. Core backups contain control-plane state, not artifact bytes.
+## Synology or QNAP
 
-Containerized Agents are useful for repository and NAS jobs, but cannot safely provide host sleep, desktop, GPU, or complete hardware telemetry. Install the native Agent on compute devices for those features.
+1. Make separate shares for Core, artifacts, and backups.
+2. Give the container access only to these shares.
+3. Copy `deploy/.env.example` to `deploy/.env`.
+4. Set the recovery token, vault key, and `FLEET_PUBLIC_URL`.
+5. Set `FLEET_STORAGE_ROOT` to the mounted artifact share.
+6. Bind port 4780 to the NAS Tailscale address.
+7. Block public access to port 4780.
+8. Mount SMB or NFS data sets on the NAS host.
+9. Register the container path in Orchestra Storage.
+10. Configure encrypted Core backups.
+11. Copy Core backups and artifact snapshots to another site.
+
+Core backups contain control-plane state. They do not contain artifact bytes.
+
+A container Agent can run repository and NAS jobs. It cannot give complete host power, desktop, GPU, or telemetry control.
+
+Install a native Agent on compute devices that need these functions.
