@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@fleet/sdk": "2.0.0",
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "express": "^5.1.0",
     "zod": "^3.25.67"
   },
